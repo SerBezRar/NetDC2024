@@ -132,6 +132,19 @@ Neighbor ID     Instance VRF      Pri State                  Dead Time   Address
 10.1.1.1        1        default  0   FULL                   00:00:31    10.2.1.9        Ethernet1
 10.1.1.2        1        default  0   FULL                   00:00:38    10.2.2.9        Ethernet2
 
+leaf3#sh bfd peers
+VRF name: default
+-----------------
+DstAddr       MyDisc    YourDisc  Interface/Transport    Type           LastUp
+--------- ----------- ----------- -------------------- ------- ----------------
+10.2.1.9   186541373  3111832184        Ethernet1(15)  normal   05/19/24 14:41
+10.2.2.9  2074272583  1168463123        Ethernet2(16)  normal   05/19/24 14:39
+
+   LastDown            LastDiag    State
+-------------- ------------------- -----
+         NA       No Diagnostic       Up
+         NA       No Diagnostic       Up
+
 leaf3#sh ip ro 10.1.0.1
 
 VRF: default
