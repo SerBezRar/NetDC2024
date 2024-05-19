@@ -12,7 +12,7 @@
 
 ===
 
-1. interface connection планирование
+## 1. interface connection планирование
 
 1.1. Нумерация подключения p2p линков, для удобства и для соответствия ip.addr-net plan формируется по следующим правилам
 - номер интерфейса Spine (Eth<N>) указывает на номер Leaf<N> к которому подключен. N начинается с 1.
@@ -29,8 +29,7 @@ Spine4 Eth2 - Leaf2 Eth4
 1.3. Нумерация Хостовых интерфейсов
 подключения хостов будут выполняться на интерфейсы с конца
 
-
-2. ip address and network underlay планирование (ip.addr-net plan) для Underlay
+## 2. ip address and network underlay планирование (ip.addr-net plan) для Underlay
 
 2.1. Общие принципы
 
@@ -93,12 +92,13 @@ DC1-Spine2-Leaf3 P2P линк - 10.2.2.8/24
 DC1-Leaf2 Lo0 - 10.0.0.
 DC1-Leaf3 Lo0 - 10.0.0.
 
-3. Конечные адреса и интерфейсы в рамках данной фабрики представлены на рисунке и в конфигурации
+## 3. Конечные адреса и интерфейсы в рамках данной фабрики представлены на рисунке и в конфигурации
 
-4. Конфигурация
+## 4. Конфигурация
 
 === Spine1
 
+```
 interface Ethernet1
    no switchport
    ip address 10.2.1.1/30
@@ -113,9 +113,11 @@ interface Ethernet3
 !
 interface Lo1
    ip address 10.1.1.1/32
+```
 
 === Spine2
 
+```
 interface Ethernet1
    no switchport
    ip address 10.2.2.1/30
@@ -130,9 +132,11 @@ interface Ethernet3
 !
 interface Lo1
    ip address 10.1.1.2/32
+```
 
 === Leaf1
 
+```
 interface Ethernet1
    no switchport
    ip address 10.2.1.2/30
@@ -146,6 +150,7 @@ interface Lo0
 !
 interface Lo1
    ip address 10.1.0.1/32
+```
 
 === Leaf2
 
@@ -183,8 +188,9 @@ interface Lo1
    ip address 10.1.0.3/32
 ```
 
-5. Пример проверки работы ip P2P связности
+## 5. Пример проверки работы ip P2P связности
 
+~~~
 spine2#sh ip int br
                                                                         Address
 Interface        IP Address       Status      Protocol           MTU    Owner
@@ -207,3 +213,4 @@ PING 10.2.2.2 (10.2.2.2) 72(100) bytes of data.
 5 packets transmitted, 5 received, 0% packet loss, time 81ms
 rtt min/avg/max/mdev = 5.828/34.149/45.582/14.607 ms, pipe 4, ipg/ewma 20.293/38             .215 ms
 spine2#
+~~~
