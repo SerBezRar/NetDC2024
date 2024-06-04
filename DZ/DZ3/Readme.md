@@ -163,6 +163,17 @@ underlay  default  spine1           L2   Ethernet1          50:0:0:d7:ee:b    UP
 underlay  default  spine2           L2   Ethernet2          50:0:0:cb:38:c2   UP    8           spine2.0f
 
 
+leaf3#sh isis hostname
+
+IS-IS Instance: underlay VRF: default
+Level  System ID           Hostname
+L2     0100.0100.0001      leaf1
+L2     0100.0100.0002      leaf2
+L2     0100.0100.0003      leaf3
+L2     0100.0100.1001      spine1
+L2     0100.0100.1002      spine2
+
+
 leaf3#sh bfd peers
 VRF name: default
 -----------------
