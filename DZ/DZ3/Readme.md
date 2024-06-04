@@ -20,112 +20,125 @@
 
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
 
-=== Leaf1
+=== Leaf1 10.1.0.1
 
 ```
+router isis underlay
+ net 49.0001.0100.0100.0001.00
+ is-type level-2
+!
+ address-family ipv4 unicast
+ passive ethernet 1-8
+ passive loopback 0-1
+
+
 interface Ethernet1
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet2
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
+```
 
-ip routing
+=== Leaf2 10.1.0.2
+
+```
+router isis underlay
+ net 49.0001.0100.0100.0002.00
+ is-type level-2
 !
-router ospf 1
-   router-id 10.1.0.1
-   passive-interface default
-   no passive-interface Ethernet1
-   no passive-interface Ethernet2
-   network 0.0.0.0/0 area 0.0.0.0
-   bfd default
-```
+ address-family ipv4 unicast
+ passive ethernet 1-8
+ passive loopback 0-1
 
-=== Leaf2
-
-```
 interface Ethernet1
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet2
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
+```
 
-ip routing
+=== Leaf3 10.1.0.3
+
+```
+router isis underlay
+ net 49.0001.0100.0100.0003.00
+ is-type level-2
 !
-router ospf 1
-   router-id 10.1.0.2
-   passive-interface default
-   no passive-interface Ethernet1
-   no passive-interface Ethernet2
-   network 0.0.0.0/0 area 0.0.0.0
-   bfd default
-```
+ address-family ipv4 unicast
+ passive ethernet 1-8
+ passive loopback 0-1
 
-=== Leaf3
-
-```
 interface Ethernet1
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet2
- ip ospf network point-to-point
-
-ip routing
-!
-router ospf 1
-   router-id 10.1.0.3
-   passive-interface default
-   no passive-interface Ethernet1
-   no passive-interface Ethernet2
-   network 0.0.0.0/0 area 0.0.0.0
-   bfd default
+ isis enable underlay
+ isis bfd
+ no isis passive
 ```
 
-=== Spine1
+=== Spine1 10.1.1.1
 
 ```
+router isis underlay
+ net 49.0001.0100.0100.1001.00
+ is-type level-2
+ !
+ address-family ipv4 unicast
+ passive ethernet 1-8
+ passive loopback 1
+
 interface Ethernet1
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet2
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet3
- ip ospf network point-to-point
-
-ip routing
-!
-router ospf 1
-   router-id 10.1.1.1
-   passive-interface default
-   no passive-interface Ethernet1
-   no passive-interface Ethernet2
-   no passive-interface Ethernet3
-   network 0.0.0.0/0 area 0.0.0.0
-   bfd default
+ isis enable underlay
+ isis bfd
+ no isis passive
 ```
 
-=== Spine2
+=== Spine2 10.1.1.2
 
 ```
+router isis underlay
+ net 49.0001.0100.0100.1002.00
+ is-type level-2
+ !
+ address-family ipv4 unicast
+ passive ethernet 1-8
+ passive loopback 1
+
 interface Ethernet1
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet2
- ip ospf network point-to-point
+ isis enable underlay
+ isis bfd
+ no isis passive
 !
 interface Ethernet3
- ip ospf network point-to-point
-
-ip routing
-!
-router ospf 1
-   router-id 10.1.1.2
-   passive-interface default
-   no passive-interface Ethernet1
-   no passive-interface Ethernet2
-   no passive-interface Ethernet3
-   network 0.0.0.0/0 area 0.0.0.0
-   bfd default
+ isis enable underlay
+ isis bfd
+ no isis passive
 ```
 
 ### 3. Проверка работы
