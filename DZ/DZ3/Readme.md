@@ -10,7 +10,7 @@
 ## 1. План настройки типичный для IS-IS конфигураций.
 
 ### 1.1. активация router isis
-### 1.2. настройка параметров работы router (net, is type, passive-interface, interface, network, bfd)
+### 1.2. настройка параметров работы router (net, is type, passive-interface, interface, bfd)
 ### 1.3. настройка интерфейсов
 
 Схема из ДЗ1 на основе которой производилась настройка
