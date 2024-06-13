@@ -40,99 +40,75 @@ router bgp 65001
 === Leaf2 10.1.0.2
 
 ```
-router isis underlay
- net 49.0001.0100.0100.0002.00
- is-type level-2
-!
- address-family ipv4 unicast
- passive ethernet 1-8
- passive loopback 0-1
-
-interface Ethernet1
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet2
- isis enable underlay
- isis bfd
- no isis passive
+router bgp 65002
+   router-id 10.1.0.2
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE bfd
+   neighbor 10.2.1.5 peer group PG-SPINE
+   neighbor 10.2.2.5 peer group PG-SPINE
+   !
+   address-family ipv4
+      redistribute connected
 ```
 
 === Leaf3 10.1.0.3
 
 ```
-router isis underlay
- net 49.0001.0100.0100.0003.00
- is-type level-2
-!
- address-family ipv4 unicast
- passive ethernet 1-8
- passive loopback 0-1
-
-interface Ethernet1
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet2
- isis enable underlay
- isis bfd
- no isis passive
+router bgp 65003
+   router-id 10.1.0.3
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE bfd
+   neighbor 10.2.1.9 peer group PG-SPINE
+   neighbor 10.2.2.9 peer group PG-SPINE
+   !
+   address-family ipv4
+      redistribute connected
 ```
 
 === Spine1 10.1.1.1
 
 ```
-router isis underlay
- net 49.0001.0100.0100.1001.00
- is-type level-2
- !
- address-family ipv4 unicast
- passive ethernet 1-8
- passive loopback 1
-
-interface Ethernet1
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet2
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet3
- isis enable underlay
- isis bfd
- no isis passive
+router bgp 65000
+   router-id 10.1.1.1
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-LEAF peer group
+   neighbor PG-LEAF bfd
+   neighbor 10.2.1.2 peer group PG-LEAF
+   neighbor 10.2.1.2 remote-as 65001
+   neighbor 10.2.1.6 peer group PG-LEAF
+   neighbor 10.2.1.6 remote-as 65002
+   neighbor 10.2.1.10 peer group PG-LEAF
+   neighbor 10.2.1.10 remote-as 65003
+   !
+   address-family ipv4
+      redistribute connected
 ```
 
 === Spine2 10.1.1.2
 
 ```
-router isis underlay
- net 49.0001.0100.0100.1002.00
- is-type level-2
- !
- address-family ipv4 unicast
- passive ethernet 1-8
- passive loopback 1
-
-interface Ethernet1
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet2
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet3
- isis enable underlay
- isis bfd
- no isis passive
+router bgp 65000
+   router-id 10.1.1.2
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-LEAF peer group
+   neighbor PG-LEAF bfd
+   neighbor 10.2.2.2 peer group PG-LEAF
+   neighbor 10.2.2.2 remote-as 65001
+   neighbor 10.2.2.6 peer group PG-LEAF
+   neighbor 10.2.2.6 remote-as 65002
+   neighbor 10.2.2.10 peer group PG-LEAF
+   neighbor 10.2.2.10 remote-as 65003
+   !
+   address-family ipv4
+      redistribute connected
 ```
 
 ### 3. Проверка работы
@@ -140,46 +116,37 @@ interface Ethernet3
 Выполняется с помощью ping, traceroute между Leaf3 Lo1 (10.1.0.3) - Leaf1 Lo1 (10.1.0.1)
 
 ~~~
-leaf1#show isis neighbors
-Instance  VRF      System Id        Type Interface          SNPA              State Hold time   Circuit Id
-underlay  default  spine1           L2   Ethernet1          50:0:0:d7:ee:b    UP    7           spine1.0d
-underlay  default  spine2           L2   Ethernet2          50:0:0:cb:38:c2   UP    29          leaf1.0e
+leaf1#sh ip bgp summary
+BGP summary information for VRF default
+Router identifier 10.1.0.1, local AS number 65001
+Neighbor Status Codes: m - Under maintenance
+  Neighbor V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  10.2.1.1 4 65000            301       304    0    0 00:12:31 Estab   10     10
+  10.2.2.1 4 65000            299       301    0    0 00:12:31 Estab   10     10
 
-spine1#show isis neighbors
-Instance  VRF      System Id        Type Interface          SNPA              State Hold time   Circuit Id
-underlay  default  leaf1            L2   Ethernet1          50:0:0:d5:5d:c0   UP    27          spine1.0d
-underlay  default  leaf2            L2   Ethernet2          50:0:0:3:37:66    UP    23          spine1.0e
-underlay  default  leaf3            L2   Ethernet3          50:0:0:15:f4:e8   UP    22          spine1.0f
-
-leaf3#sh isis neighbors
-Instance  VRF      System Id        Type Interface          SNPA              State Hold time   Circuit Id
-underlay  default  spine1           L2   Ethernet1          50:0:0:d7:ee:b    UP    9           spine1.0f
-underlay  default  spine2           L2   Ethernet2          50:0:0:cb:38:c2   UP    8           spine2.0f
-
-
-leaf3#sh isis hostname
-
-IS-IS Instance: underlay VRF: default
-Level  System ID           Hostname
-L2     0100.0100.0001      leaf1
-L2     0100.0100.0002      leaf2
-L2     0100.0100.0003      leaf3
-L2     0100.0100.1001      spine1
-L2     0100.0100.1002      spine2
+spine1#sh ip bgp summary
+BGP summary information for VRF default
+Router identifier 10.1.1.1, local AS number 65000
+Neighbor Status Codes: m - Under maintenance
+  Neighbor  V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  10.2.1.2  4 65001            314       310    0    0 00:12:57 Estab   4      4
+  10.2.1.6  4 65002            308       307    0    0 00:12:57 Estab   4      4
+  10.2.1.10 4 65003            310       311    0    0 00:12:54 Estab   4      4
 
 
-leaf3#sh bfd peers
+leaf1#sh bfd peers
 VRF name: default
 -----------------
 DstAddr       MyDisc    YourDisc  Interface/Transport    Type           LastUp
 --------- ----------- ----------- -------------------- ------- ----------------
-10.2.1.9  2785038550  3041426180        Ethernet1(13)  normal   06/04/24 21:06
-10.2.2.9  1837980708  2887162523        Ethernet2(14)  normal   06/04/24 21:07
+10.2.1.1  3412729397  1780373922        Ethernet1(15)  normal   06/13/24 18:34
+10.2.2.1  2603115634  1441647632        Ethernet2(16)  normal   06/13/24 18:34
 
    LastDown            LastDiag    State
 -------------- ------------------- -----
          NA       No Diagnostic       Up
          NA       No Diagnostic       Up
+
 
 
 leaf3#sh ip route
@@ -199,27 +166,26 @@ Codes: C - connected, S - static, K - kernel,
 
 Gateway of last resort is not set
 
- I L2     10.0.0.1/32 [115/30] via 10.2.1.9, Ethernet1
-                               via 10.2.2.9, Ethernet2
- I L2     10.0.0.2/32 [115/30] via 10.2.1.9, Ethernet1
-                               via 10.2.2.9, Ethernet2
+ B E      10.0.0.1/32 [200/0] via 10.2.1.9, Ethernet1
+                              via 10.2.2.9, Ethernet2
+ B E      10.0.0.2/32 [200/0] via 10.2.1.9, Ethernet1
+                              via 10.2.2.9, Ethernet2
  C        10.0.0.3/32 is directly connected, Loopback0
- I L2     10.1.0.1/32 [115/30] via 10.2.1.9, Ethernet1
-                               via 10.2.2.9, Ethernet2
- I L2     10.1.0.2/32 [115/30] via 10.2.1.9, Ethernet1
-                               via 10.2.2.9, Ethernet2
+ B E      10.1.0.1/32 [200/0] via 10.2.1.9, Ethernet1
+                              via 10.2.2.9, Ethernet2
+ B E      10.1.0.2/32 [200/0] via 10.2.1.9, Ethernet1
+                              via 10.2.2.9, Ethernet2
  C        10.1.0.3/32 is directly connected, Loopback1
- I L2     10.1.1.1/32 [115/20] via 10.2.1.9, Ethernet1
- I L2     10.1.1.2/32 [115/20] via 10.2.2.9, Ethernet2
- I L2     10.2.1.0/30 [115/20] via 10.2.1.9, Ethernet1
- I L2     10.2.1.4/30 [115/20] via 10.2.1.9, Ethernet1
+ B E      10.1.1.1/32 [200/0] via 10.2.1.9, Ethernet1
+ B E      10.1.1.2/32 [200/0] via 10.2.2.9, Ethernet2
+ B E      10.2.1.0/30 [200/0] via 10.2.1.9, Ethernet1
+ B E      10.2.1.4/30 [200/0] via 10.2.1.9, Ethernet1
  C        10.2.1.8/30 is directly connected, Ethernet1
- I L2     10.2.2.0/30 [115/20] via 10.2.2.9, Ethernet2
- I L2     10.2.2.4/30 [115/20] via 10.2.2.9, Ethernet2
+ B E      10.2.2.0/30 [200/0] via 10.2.2.9, Ethernet2
+ B E      10.2.2.4/30 [200/0] via 10.2.2.9, Ethernet2
  C        10.2.2.8/30 is directly connected, Ethernet2
 
-
-leaf3#sh ip ro 10.1.0.1
+leaf3#sh ip route 10.1.0.1
 
 VRF: default
 Codes: C - connected, S - static, K - kernel,
@@ -234,27 +200,27 @@ Codes: C - connected, S - static, K - kernel,
        DP - Dynamic Policy Route, L - VRF Leaked,
        G  - gRIBI, RC - Route Cache Route
 
- I L2     10.1.0.1/32 [115/30] via 10.2.1.9, Ethernet1
-                               via 10.2.2.9, Ethernet2
-
+ B E      10.1.0.1/32 [200/0] via 10.2.1.9, Ethernet1
+                              via 10.2.2.9, Ethernet2
 
 
 leaf3#ping 10.1.0.1 source 10.1.0.3
 PING 10.1.0.1 (10.1.0.1) from 10.1.0.3 : 72(100) bytes of data.
-80 bytes from 10.1.0.1: icmp_seq=1 ttl=63 time=25.5 ms
-80 bytes from 10.1.0.1: icmp_seq=2 ttl=63 time=20.9 ms
-80 bytes from 10.1.0.1: icmp_seq=3 ttl=63 time=12.4 ms
-80 bytes from 10.1.0.1: icmp_seq=4 ttl=63 time=16.8 ms
-80 bytes from 10.1.0.1: icmp_seq=5 ttl=63 time=13.2 ms
+80 bytes from 10.1.0.1: icmp_seq=1 ttl=63 time=13.6 ms
+80 bytes from 10.1.0.1: icmp_seq=2 ttl=63 time=12.3 ms
+80 bytes from 10.1.0.1: icmp_seq=3 ttl=63 time=12.0 ms
+80 bytes from 10.1.0.1: icmp_seq=4 ttl=63 time=17.6 ms
+80 bytes from 10.1.0.1: icmp_seq=5 ttl=63 time=20.5 ms
 
 --- 10.1.0.1 ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 85ms
-rtt min/avg/max/mdev = 12.408/17.802/25.571/4.923 ms, pipe 2, ipg/ewma 21.430/21.428 ms
+5 packets transmitted, 5 received, 0% packet loss, time 59ms
+rtt min/avg/max/mdev = 12.090/15.262/20.560/3.307 ms, pipe 2, ipg/ewma 14.980/14.699 ms
 
 
 leaf3#trace 10.1.0.1 source 10.1.0.3
 traceroute to 10.1.0.1 (10.1.0.1), 30 hops max, 60 byte packets
- 1  10.2.1.9 (10.2.1.9)  39.163 ms  32.304 ms  39.753 ms
- 2  10.1.0.1 (10.1.0.1)  45.778 ms  53.191 ms  58.206 ms
+ 1  10.2.1.9 (10.2.1.9)  42.534 ms  48.511 ms  61.317 ms
+ 2  10.1.0.1 (10.1.0.1)  38.430 ms  47.595 ms  66.250 ms
+
 
 ~~~
