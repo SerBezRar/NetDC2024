@@ -25,7 +25,7 @@ service routing protocols model multi-agent
 write
 reload
 
-Выполнено для всех устройств в схеме(Leaf1-3, Spine1-2).
+Выполнено для всех устройств в схеме (Leaf1-3, Spine1-2).
 
 === Leaf1 10.1.0.1
 
