@@ -10,15 +10,22 @@
 ## 1. План настройки типичный для BGP конфигураций.
 
 ### 1.1. активация router bgp
-### 1.2. настройка параметров работы router (neighbor, router-id, timers, neighbor, redistribute, bfd)
-### 1.3. настройка интерфейсов
+### 1.2. настройка service для redistribute
+### 1.3. настройка параметров работы router (neighbor, router-id, timers, neighbor, redistribute, bfd)
+
 
 Схема из ДЗ1 на основе которой производилась настройка
 
 ![](pictures/Topo.PNG)
 
-
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
+
+Для корректной работы команды redistribute в router bgp при настройке Arista EOS в современных версиях нужны команды:
+service routing protocols model multi-agent
+write
+reload
+
+Выполнено для всех устройств в схеме(Leaf1-3, Spine1-2).
 
 === Leaf1 10.1.0.1
 
@@ -148,7 +155,6 @@ DstAddr       MyDisc    YourDisc  Interface/Transport    Type           LastUp
          NA       No Diagnostic       Up
 
 
-
 leaf3#sh ip route
 
 VRF: default
@@ -221,6 +227,4 @@ leaf3#trace 10.1.0.1 source 10.1.0.3
 traceroute to 10.1.0.1 (10.1.0.1), 30 hops max, 60 byte packets
  1  10.2.1.9 (10.2.1.9)  42.534 ms  48.511 ms  61.317 ms
  2  10.1.0.1 (10.1.0.1)  38.430 ms  47.595 ms  66.250 ms
-
-
 ~~~
