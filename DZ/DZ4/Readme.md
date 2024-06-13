@@ -21,9 +21,12 @@
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
 
 Для корректной работы команды redistribute в router bgp при настройке Arista EOS в современных версиях нужны команды:
+
+```
 service routing protocols model multi-agent
 write
 reload
+```
 
 Выполнено для всех устройств в схеме (Leaf1-3, Spine1-2).
 
