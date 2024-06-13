@@ -10,7 +10,7 @@
 ## 1. План настройки типичный для BGP конфигураций.
 
 ### 1.1. активация router bgp
-### 1.2. настройка параметров работы router (neighbor, redistribute, bfd)
+### 1.2. настройка параметров работы router (neighbor, router-id, timers, neighbor, redistribute, bfd)
 ### 1.3. настройка интерфейсов
 
 Схема из ДЗ1 на основе которой производилась настройка
@@ -23,24 +23,18 @@
 === Leaf1 10.1.0.1
 
 ```
-router isis underlay
- net 49.0001.0100.0100.0001.00
- is-type level-2
-!
- address-family ipv4 unicast
- passive ethernet 1-8
- passive loopback 0-1
-
-
-interface Ethernet1
- isis enable underlay
- isis bfd
- no isis passive
-!
-interface Ethernet2
- isis enable underlay
- isis bfd
- no isis passive
+router bgp 65001
+   router-id 10.1.0.1
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE bfd
+   neighbor 10.2.1.1 peer group PG-SPINE
+   neighbor 10.2.2.1 peer group PG-SPINE
+   !
+   address-family ipv4
+      redistribute connected
 ```
 
 === Leaf2 10.1.0.2
