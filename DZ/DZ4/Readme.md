@@ -11,7 +11,7 @@
 
 ### 1.1. активация router bgp
 ### 1.2. настройка service для redistribute
-### 1.3. настройка параметров работы router (neighbor, router-id, timers, neighbor, redistribute, bfd)
+### 1.3. настройка параметров работы router (router-id, timers, neighbor, redistribute, bfd)
 
 
 Схема из ДЗ1 на основе которой производилась настройка
