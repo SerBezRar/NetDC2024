@@ -74,35 +74,75 @@ router bgp 65001
 === Leaf2 10.1.0.2
 
 ```
+vlan 10
+!
+interface Ethernet7
+   switchport mode access
+   switchport access vlan 10
+   no shutdown
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+!
 router bgp 65002
    router-id 10.1.0.2
    timers bgp 3 9
    maximum-paths 8
    neighbor PG-SPINE peer group
    neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.1.0.2
    neighbor PG-SPINE bfd
-   neighbor 10.2.1.5 peer group PG-SPINE
-   neighbor 10.2.2.5 peer group PG-SPINE
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.1.1.1 peer group PG-SPINE
+   neighbor 10.1.1.2 peer group PG-SPINE
    !
-   address-family ipv4
-      redistribute connected
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
 ```
 
 === Leaf3 10.1.0.3
 
 ```
+vlan 10
+!
+interface Ethernet7
+   switchport mode access
+   switchport access vlan 10
+   no shutdown
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+!
 router bgp 65003
    router-id 10.1.0.3
    timers bgp 3 9
    maximum-paths 8
    neighbor PG-SPINE peer group
    neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.1.0.3
    neighbor PG-SPINE bfd
-   neighbor 10.2.1.9 peer group PG-SPINE
-   neighbor 10.2.2.9 peer group PG-SPINE
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.1.1.1 peer group PG-SPINE
+   neighbor 10.1.1.2 peer group PG-SPINE
    !
-   address-family ipv4
-      redistribute connected
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
 ```
 
 === Spine1 10.1.1.1
@@ -113,16 +153,19 @@ router bgp 65000
    timers bgp 3 9
    maximum-paths 8
    neighbor PG-LEAF peer group
+   neighbor PG-LEAF update-source 10.1.1.1
    neighbor PG-LEAF bfd
-   neighbor 10.2.1.2 peer group PG-LEAF
-   neighbor 10.2.1.2 remote-as 65001
-   neighbor 10.2.1.6 peer group PG-LEAF
-   neighbor 10.2.1.6 remote-as 65002
-   neighbor 10.2.1.10 peer group PG-LEAF
-   neighbor 10.2.1.10 remote-as 65003
+   neighbor PG-LEAF ebgp-multihop
+   neighbor PG-LEAF send-community extended
+   neighbor 10.1.0.1 peer group PG-LEAF
+   neighbor 10.1.0.1 remote-as 65001
+   neighbor 10.1.0.2 peer group PG-LEAF
+   neighbor 10.1.0.2 remote-as 65002
+   neighbor 10.1.0.3 peer group PG-LEAF
+   neighbor 10.1.0.3 remote-as 65003
    !
-   address-family ipv4
-      redistribute connected
+   address-family evpn
+      neighbor PG-LEAF activate
 ```
 
 === Spine2 10.1.1.2
@@ -133,16 +176,19 @@ router bgp 65000
    timers bgp 3 9
    maximum-paths 8
    neighbor PG-LEAF peer group
+   neighbor PG-LEAF update-source 10.1.1.2
    neighbor PG-LEAF bfd
-   neighbor 10.2.2.2 peer group PG-LEAF
-   neighbor 10.2.2.2 remote-as 65001
-   neighbor 10.2.2.6 peer group PG-LEAF
-   neighbor 10.2.2.6 remote-as 65002
-   neighbor 10.2.2.10 peer group PG-LEAF
-   neighbor 10.2.2.10 remote-as 65003
+   neighbor PG-LEAF ebgp-multihop
+   neighbor PG-LEAF send-community extended
+   neighbor 10.1.0.1 peer group PG-LEAF
+   neighbor 10.1.0.1 remote-as 65001
+   neighbor 10.1.0.2 peer group PG-LEAF
+   neighbor 10.1.0.2 remote-as 65002
+   neighbor 10.1.0.3 peer group PG-LEAF
+   neighbor 10.1.0.3 remote-as 65003
    !
-   address-family ipv4
-      redistribute connected
+   address-family evpn
+      neighbor PG-LEAF activate
 ```
 
 ### 3. Проверка работы
