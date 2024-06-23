@@ -37,18 +37,38 @@ reload
 === Leaf1 10.1.0.1
 
 ```
+vlan 10
+!
+interface Ethernet7
+   switchport mode access
+   switchport access vlan 10
+   no shutdown
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+!
 router bgp 65001
    router-id 10.1.0.1
    timers bgp 3 9
    maximum-paths 8
    neighbor PG-SPINE peer group
    neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.1.0.1
    neighbor PG-SPINE bfd
-   neighbor 10.2.1.1 peer group PG-SPINE
-   neighbor 10.2.2.1 peer group PG-SPINE
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.1.1.1 peer group PG-SPINE
+   neighbor 10.1.1.2 peer group PG-SPINE
    !
-   address-family ipv4
-      redistribute connected
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
 ```
 
 === Leaf2 10.1.0.2
