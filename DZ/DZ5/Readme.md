@@ -10,11 +10,11 @@
 Выбран eBGP EVPN Overlay (Урок 8).
 
 ## 1. План настройки:
-### 1.1. активация vxlan интерфейса и привязка vlan-vni
-### 1.2. активация router bgp (соответственно с разными номерами AS для eBGP)
-### 1.3. настройка параметров работы router bgp на Leaf, Spine (router-id, peer-group, timers, neighbor, bfd, address-family и т.д.)
-### 1.4. настройка параметров работы router bgp на Leaf для MACVRF (vlan, rd, rt)
-### 1.5. настройка на Leaf локальных параметров - vlan, interface для подключения конечных клиентских машин
+### 1.1. настройка на Leaf локальных параметров - vlan, interface для подключения конечных клиентских машин
+### 1.2. настройка vxlan интерфейса и привязка vlan-vni
+### 1.3. активация router bgp (соответственно с разными номерами AS для eBGP)
+### 1.4. настройка параметров работы router bgp на Leaf, Spine (router-id, peer-group, timers, neighbor, bfd, address-family и т.д.)
+### 1.5. настройка параметров работы router bgp на Leaf для MACVRF (vlan, rd, rt)
 ### 1.6. настройка локальных параметров конечных клиентских машин
 
 Схема на основе которой производилась настройка
