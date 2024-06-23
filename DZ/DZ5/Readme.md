@@ -210,108 +210,94 @@ save
 Выполняется с помощью ping между Client1 (192.168.1.1) - Client2 (192.168.1.2)
 
 ~~~
-leaf1#sh ip bgp summary
-BGP summary information for VRF default
+VPCS> ping 192.168.10.2
+
+84 bytes from 192.168.10.2 icmp_seq=1 ttl=64 time=25.942 ms
+84 bytes from 192.168.10.2 icmp_seq=2 ttl=64 time=31.108 ms
+84 bytes from 192.168.10.2 icmp_seq=3 ttl=64 time=32.178 ms
+84 bytes from 192.168.10.2 icmp_seq=4 ttl=64 time=45.014 ms
+84 bytes from 192.168.10.2 icmp_seq=5 ttl=64 time=38.786 ms
+
+VPCS> arp
+
+00:50:79:66:68:07  192.168.10.2 expires in 69 seconds
+
+
+leaf1#sh mac address-table
+          Mac Address Table
+------------------------------------------------------------------
+
+Vlan    Mac Address       Type        Ports      Moves   Last Move
+----    -----------       ----        -----      -----   ---------
+  10    0050.7966.6806    DYNAMIC     Et7        1       0:10:20 ago
+  10    0050.7966.6807    DYNAMIC     Vx1        1       0:00:02 ago
+Total Mac Addresses for this criterion: 2
+
+          Multicast Mac Address Table
+------------------------------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       ----        -----
+Total Mac Addresses for this criterion: 0
+
+
+leaf1#sh bgp evpn route-type mac-ip
+BGP routing table information for VRF default
 Router identifier 10.1.0.1, local AS number 65001
-Neighbor Status Codes: m - Under maintenance
-  Neighbor V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
-  10.2.1.1 4 65000            301       304    0    0 00:12:31 Estab   10     10
-  10.2.2.1 4 65000            299       301    0    0 00:12:31 Estab   10     10
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
 
-spine1#sh ip bgp summary
-BGP summary information for VRF default
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.0.1:10 mac-ip 0050.7966.6806
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.0.2:10 mac-ip 0050.7966.6807
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.1.0.2:10 mac-ip 0050.7966.6807
+                                 10.0.0.2              -       100     0       65000 65002 i
+
+
+leaf1#sh bgp evpn route-type imet
+BGP routing table information for VRF default
+Router identifier 10.1.0.1, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.0.1:10 imet 10.0.0.1
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.0.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.1.0.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.0.3:10 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:10 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+
+
+spine1#sh bgp evpn
+BGP routing table information for VRF default
 Router identifier 10.1.1.1, local AS number 65000
-Neighbor Status Codes: m - Under maintenance
-  Neighbor  V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
-  10.2.1.2  4 65001            314       310    0    0 00:12:57 Estab   4      4
-  10.2.1.6  4 65002            308       307    0    0 00:12:57 Estab   4      4
-  10.2.1.10 4 65003            310       311    0    0 00:12:54 Estab   4      4
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.1.0.1:10 mac-ip 0050.7966.6806
+                                 10.0.0.1              -       100     0       65001 i
+ * >      RD: 10.1.0.2:10 mac-ip 0050.7966.6807
+                                 10.0.0.2              -       100     0       65002 i
+ * >      RD: 10.1.0.1:10 imet 10.0.0.1
+                                 10.0.0.1              -       100     0       65001 i
+ * >      RD: 10.1.0.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65002 i
+ * >      RD: 10.1.0.3:10 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65003 i
 
 
-leaf1#sh bfd peers
-VRF name: default
------------------
-DstAddr       MyDisc    YourDisc  Interface/Transport    Type           LastUp
---------- ----------- ----------- -------------------- ------- ----------------
-10.2.1.1  3412729397  1780373922        Ethernet1(15)  normal   06/13/24 18:34
-10.2.2.1  2603115634  1441647632        Ethernet2(16)  normal   06/13/24 18:34
-
-   LastDown            LastDiag    State
--------------- ------------------- -----
-         NA       No Diagnostic       Up
-         NA       No Diagnostic       Up
-
-
-leaf3#sh ip route
-
-VRF: default
-Codes: C - connected, S - static, K - kernel,
-       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
-       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
-       N2 - OSPF NSSA external type2, B - Other BGP Routes,
-       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
-       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
-       A O - OSPF Summary, NG - Nexthop Group Static Route,
-       V - VXLAN Control Service, M - Martian,
-       DH - DHCP client installed default route,
-       DP - Dynamic Policy Route, L - VRF Leaked,
-       G  - gRIBI, RC - Route Cache Route
-
-Gateway of last resort is not set
-
- B E      10.0.0.1/32 [200/0] via 10.2.1.9, Ethernet1
-                              via 10.2.2.9, Ethernet2
- B E      10.0.0.2/32 [200/0] via 10.2.1.9, Ethernet1
-                              via 10.2.2.9, Ethernet2
- C        10.0.0.3/32 is directly connected, Loopback0
- B E      10.1.0.1/32 [200/0] via 10.2.1.9, Ethernet1
-                              via 10.2.2.9, Ethernet2
- B E      10.1.0.2/32 [200/0] via 10.2.1.9, Ethernet1
-                              via 10.2.2.9, Ethernet2
- C        10.1.0.3/32 is directly connected, Loopback1
- B E      10.1.1.1/32 [200/0] via 10.2.1.9, Ethernet1
- B E      10.1.1.2/32 [200/0] via 10.2.2.9, Ethernet2
- B E      10.2.1.0/30 [200/0] via 10.2.1.9, Ethernet1
- B E      10.2.1.4/30 [200/0] via 10.2.1.9, Ethernet1
- C        10.2.1.8/30 is directly connected, Ethernet1
- B E      10.2.2.0/30 [200/0] via 10.2.2.9, Ethernet2
- B E      10.2.2.4/30 [200/0] via 10.2.2.9, Ethernet2
- C        10.2.2.8/30 is directly connected, Ethernet2
-
-leaf3#sh ip route 10.1.0.1
-
-VRF: default
-Codes: C - connected, S - static, K - kernel,
-       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
-       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
-       N2 - OSPF NSSA external type2, B - Other BGP Routes,
-       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
-       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
-       A O - OSPF Summary, NG - Nexthop Group Static Route,
-       V - VXLAN Control Service, M - Martian,
-       DH - DHCP client installed default route,
-       DP - Dynamic Policy Route, L - VRF Leaked,
-       G  - gRIBI, RC - Route Cache Route
-
- B E      10.1.0.1/32 [200/0] via 10.2.1.9, Ethernet1
-                              via 10.2.2.9, Ethernet2
-
-
-leaf3#ping 10.1.0.1 source 10.1.0.3
-PING 10.1.0.1 (10.1.0.1) from 10.1.0.3 : 72(100) bytes of data.
-80 bytes from 10.1.0.1: icmp_seq=1 ttl=63 time=13.6 ms
-80 bytes from 10.1.0.1: icmp_seq=2 ttl=63 time=12.3 ms
-80 bytes from 10.1.0.1: icmp_seq=3 ttl=63 time=12.0 ms
-80 bytes from 10.1.0.1: icmp_seq=4 ttl=63 time=17.6 ms
-80 bytes from 10.1.0.1: icmp_seq=5 ttl=63 time=20.5 ms
-
---- 10.1.0.1 ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 59ms
-rtt min/avg/max/mdev = 12.090/15.262/20.560/3.307 ms, pipe 2, ipg/ewma 14.980/14.699 ms
-
-
-leaf3#trace 10.1.0.1 source 10.1.0.3
-traceroute to 10.1.0.1 (10.1.0.1), 30 hops max, 60 byte packets
- 1  10.2.1.9 (10.2.1.9)  42.534 ms  48.511 ms  61.317 ms
- 2  10.1.0.1 (10.1.0.1)  38.430 ms  47.595 ms  66.250 ms
 ~~~
