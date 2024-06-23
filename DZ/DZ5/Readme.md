@@ -190,10 +190,24 @@ router bgp 65000
    address-family evpn
       neighbor PG-LEAF activate
 ```
+=== Client1 192.168.10.1
+
+```
+ip 192.168.10.1/24
+save
+```
+
+=== Client2 192.168.10.2
+
+```
+ip 192.168.10.2/24
+save
+```
+
 
 ### 3. Проверка работы
 
-Выполняется с помощью ping, traceroute между Leaf3 Lo1 (10.1.0.3) - Leaf1 Lo1 (10.1.0.1)
+Выполняется с помощью ping между Client1 (192.168.1.1) - Client2 (192.168.1.2)
 
 ~~~
 leaf1#sh ip bgp summary
