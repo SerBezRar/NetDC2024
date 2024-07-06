@@ -23,105 +23,42 @@
 
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
 
-Логика выбора rd, rt будет следующая:
-rd - <source.leaf.ip.addr>:<vni>
-rt - <tenant.number>:<vni>
+Логика выбора ethernet-segment будет следующая:
+0000:0000:0000:<leaf-pair-number>:<port-channel-number>
+
+Логика выбора LACP system-id будет следующая:
+0000.<leaf-pair-number>.<port-channel-number>
 
 === Leaf1 10.1.0.1
 
 ```
-vlan 10
-!
-vrf instance TENANT1
-!
-interface Ethernet7
-   switchport mode access
-   switchport access vlan 10
-   no shutdown
-!
-interface Vlan10
-   vrf TENANT1
-   ip address virtual 192.168.10.254/24
-!
-interface Vxlan1
-   vxlan source-interface Loopback0
-   vxlan udp-port 4789
-   vxlan vrf TENANT1 vni 20001
-!
-ip virtual-router mac-address 00:00:aa:00:00:01
-!
-ip routing vrf TENANT1
-!
-router bgp 65001
-   router-id 10.1.0.1
-   timers bgp 3 9
-   maximum-paths 8
-   neighbor PG-SPINE peer group
-   neighbor PG-SPINE remote-as 65000
-   neighbor PG-SPINE update-source 10.1.0.1
-   neighbor PG-SPINE bfd
-   neighbor PG-SPINE ebgp-multihop
-   neighbor PG-SPINE send-community extended
-   neighbor 10.1.1.1 peer group PG-SPINE
-   neighbor 10.1.1.2 peer group PG-SPINE
-   !
-   address-family evpn
-      neighbor PG-SPINE activate
-   !
-   vrf TENANT1
-      rd 10.1.0.1:20001
-      route-target import evpn 1:20001
-      route-target export evpn 1:20001
-      redistribute connected
-```
-
-=== Leaf3 10.1.0.3
-
-```
-!
-vlan 20
-!
-vrf instance TENANT1
-!
 interface Ethernet8
-   switchport mode access
-   switchport access vlan 20
-   no shutdown
+   channel-group 12 mode active
 !
-interface Vlan20
-   vrf TENANT1
-   ip address virtual 192.168.20.254/24
-!
-interface Vxlan1
-   vxlan source-interface Loopback0
-   vxlan udp-port 4789
-   vxlan vrf TENANT1 vni 20001
-!
-ip virtual-router mac-address 00:00:aa:00:00:03
-!
-ip routing vrf TENANT1
-!
-router bgp 65003
-   router-id 10.1.0.3
-   timers bgp 3 9
-   maximum-paths 8
-   neighbor PG-SPINE peer group
-   neighbor PG-SPINE remote-as 65000
-   neighbor PG-SPINE update-source 10.1.0.3
-   neighbor PG-SPINE bfd
-   neighbor PG-SPINE ebgp-multihop
-   neighbor PG-SPINE send-community extended
-   neighbor 10.1.1.1 peer group PG-SPINE
-   neighbor 10.1.1.2 peer group PG-SPINE
+interface Port-Channel12
+   switchport access vlan 10
    !
-   address-family evpn
-      neighbor PG-SPINE activate
+   evpn ethernet-segment
+      identifier 0000:0000:0000:0012:0012
+      route-target import 12:23:34:45:56:67
+   lacp system-id 0000.0012.0012
+!
+```
+
+=== Leaf2 10.1.0.2
+
+```
+interface Ethernet8
+   channel-group 12 mode active
+!
+interface Port-Channel12
+   switchport access vlan 10
    !
-   vrf TENANT1
-      rd 10.1.0.3:20001
-      route-target import evpn 1:20001
-      route-target export evpn 1:20001
-      redistribute connected
+   evpn ethernet-segment
+      identifier 0000:0000:0000:0012:0012
+      route-target import 12:23:34:45:56:67
+   lacp system-id 0000.0012.0012
+!
 ```
 
 === Client1 192.168.10.1
@@ -131,18 +68,25 @@ ip 192.168.10.1/24 192.168.10.254
 save
 ```
 
-=== Client4 192.168.20.3
+=== MHClient1 192.168.10.12
 
 ```
-ip 192.168.20.3/24 192.168.20.254
-save
+interface Ethernet1
+   channel-group 12 mode active
+!
+interface Ethernet2
+   channel-group 12 mode active
+!
+interface Port-Channel12
+   no switchport
+   ip address 192.168.10.12/24
 ```
 
 
 ### 3. Проверка работы
 
-Выполняется с помощью ping между Client1 (192.168.10.1) - Client4 (192.168.20.3)
-Приведены выводы Client1 (VPCS)
+Выполняется с помощью ping между Client1 (192.168.10.1) - MHClient1 (192.168.10.12)
+Приведены выводы Client1 (VPCS) и MHClient1 (Arista)
 
 ~~~
 VPCS> ping 192.168.20.3
