@@ -130,47 +130,6 @@ Port Channel Port-Channel12:
    Et2          Bundled  |   noChurn            0
 
 
-
-leaf1#
-leaf1#sh mac address-table vlan 10
-          Mac Address Table
-------------------------------------------------------------------
-
-Vlan    Mac Address       Type        Ports      Moves   Last Move
-----    -----------       ----        -----      -----   ---------
-  10    0000.aa00.0001    STATIC      Cpu
-  10    0050.7966.6806    DYNAMIC     Et7        1       0:02:23 ago
-Total Mac Addresses for this criterion: 2
-
-          Multicast Mac Address Table
-------------------------------------------------------------------
-
-Vlan    Mac Address       Type        Ports
-----    -----------       ----        -----
-Total Mac Addresses for this criterion: 0
-
-
-leaf1#sh ip ro vrf TENANT1
-
-VRF: TENANT1
-Codes: C - connected, S - static, K - kernel,
-       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
-       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
-       N2 - OSPF NSSA external type2, B - Other BGP Routes,
-       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
-       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
-       A O - OSPF Summary, NG - Nexthop Group Static Route,
-       V - VXLAN Control Service, M - Martian,
-       DH - DHCP client installed default route,
-       DP - Dynamic Policy Route, L - VRF Leaked,
-       G  - gRIBI, RC - Route Cache Route
-
-Gateway of last resort is not set
-
- C        192.168.10.0/24 is directly connected, Vlan10
- B E      192.168.20.0/24 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
-
-
 leaf1#sh bgp evpn instance vlan 10
 EVPN instance: VLAN 10
   Route distinguisher: 0:0
@@ -231,4 +190,4 @@ AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Li
 
 ~~~
 
-Замечу что тут вывод содержит "лишние" mac-ip маршруты, так как на Leaf1 осталась L2VPN VNI конфигурация для vlan10, которой нет для vlan20 (там для проверки оставил ТОЛЬКО L3VPN VNI). Сделано специально для наглядности отличия vlan10, vlan20...
+Замечу что тут вывод содержит "лишние" mac-ip, ip-prefix маршруты, так как остались L2VPN, L3VPN VNI конфигурации.
