@@ -81,6 +81,8 @@ interface Ethernet2
 interface Port-Channel12
    no switchport
    ip address 192.168.10.12/24
+!
+ip route 0.0.0.0 0.0.0.0 192.168.10.254
 ```
 
 
@@ -90,6 +92,8 @@ interface Port-Channel12
 
 Выполняется с помощью ping между Client1 (192.168.10.1) - MHClient1 (192.168.10.12)
 Приведены выводы Client1 (VPCS) и MHClient1 (Arista)
+
+Что важно отметить - что Port-Channel LACP на MHClient1 заработал с разными Leaf коммутаторами на другой стороне, причём они не собраны с помощью MC-LAG или Stack технологий. Только ESI EVPN.
 
 ~~~
 VPCS> ping 192.168.10.12
