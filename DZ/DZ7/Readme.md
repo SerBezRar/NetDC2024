@@ -86,6 +86,8 @@ interface Port-Channel12
 
 ### 3. Проверка работы
 
+#### 3.1. Проверка работы общая 
+
 Выполняется с помощью ping между Client1 (192.168.10.1) - MHClient1 (192.168.10.12)
 Приведены выводы Client1 (VPCS) и MHClient1 (Arista)
 
@@ -191,3 +193,82 @@ AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Li
 ~~~
 
 Замечу что тут вывод содержит "лишние" mac-ip, ip-prefix маршруты, так как остались L2VPN, L3VPN VNI конфигурации.
+
+
+#### 3.2. Проверка работы при переходных процессах
+
+Ниже проверка работы при выключении-включении линков Leaf1 - Eth8, который по умолчанию становится DF
+
+1. icmp_seq = 5 - потерян при выключении линка Leaf1-Eth8
+2. icmp_seq = 10-19 - потеряны при включении линка Leaf1-Eth8.
+
+
+~~~
+VPCS> ping 192.168.10.12 -t
+
+84 bytes from 192.168.10.12 icmp_seq=1 ttl=64 time=13.258 ms
+84 bytes from 192.168.10.12 icmp_seq=2 ttl=64 time=12.212 ms
+84 bytes from 192.168.10.12 icmp_seq=3 ttl=64 time=12.033 ms
+84 bytes from 192.168.10.12 icmp_seq=4 ttl=64 time=14.485 ms
+192.168.10.12 icmp_seq=5 timeout
+84 bytes from 192.168.10.12 icmp_seq=6 ttl=64 time=82.046 ms
+84 bytes from 192.168.10.12 icmp_seq=7 ttl=64 time=127.038 ms
+84 bytes from 192.168.10.12 icmp_seq=8 ttl=64 time=40.480 ms
+84 bytes from 192.168.10.12 icmp_seq=9 ttl=64 time=50.117 ms
+192.168.10.12 icmp_seq=10 timeout
+192.168.10.12 icmp_seq=11 timeout
+192.168.10.12 icmp_seq=12 timeout
+192.168.10.12 icmp_seq=13 timeout
+192.168.10.12 icmp_seq=14 timeout
+192.168.10.12 icmp_seq=15 timeout
+192.168.10.12 icmp_seq=16 timeout
+192.168.10.12 icmp_seq=17 timeout
+192.168.10.12 icmp_seq=18 timeout
+192.168.10.12 icmp_seq=19 timeout
+84 bytes from 192.168.10.12 icmp_seq=20 ttl=64 time=25.128 ms
+84 bytes from 192.168.10.12 icmp_seq=21 ttl=64 time=21.659 ms
+84 bytes from 192.168.10.12 icmp_seq=22 ttl=64 time=25.739 ms
+84 bytes from 192.168.10.12 icmp_seq=23 ttl=64 time=13.840 ms
+84 bytes from 192.168.10.12 icmp_seq=24 ttl=64 time=16.250 ms
+
+~~~
+
+Ниже проверка работы при выключении-включении линков Leaf2 - Eth8, который по умолчанию не становится DF
+
+1. icmp_seq = 17-26 - потеряны при включении линка Leaf2-Eth8.
+
+~~~
+VPCS> ping 192.168.10.12 -t
+
+84 bytes from 192.168.10.12 icmp_seq=1 ttl=64 time=18.513 ms
+84 bytes from 192.168.10.12 icmp_seq=2 ttl=64 time=12.986 ms
+84 bytes from 192.168.10.12 icmp_seq=3 ttl=64 time=11.903 ms
+84 bytes from 192.168.10.12 icmp_seq=4 ttl=64 time=11.842 ms
+84 bytes from 192.168.10.12 icmp_seq=5 ttl=64 time=14.012 ms
+84 bytes from 192.168.10.12 icmp_seq=6 ttl=64 time=11.879 ms
+84 bytes from 192.168.10.12 icmp_seq=7 ttl=64 time=11.707 ms
+84 bytes from 192.168.10.12 icmp_seq=8 ttl=64 time=11.869 ms
+84 bytes from 192.168.10.12 icmp_seq=9 ttl=64 time=12.917 ms
+84 bytes from 192.168.10.12 icmp_seq=10 ttl=64 time=13.510 ms
+84 bytes from 192.168.10.12 icmp_seq=11 ttl=64 time=11.881 ms
+84 bytes from 192.168.10.12 icmp_seq=12 ttl=64 time=14.127 ms
+84 bytes from 192.168.10.12 icmp_seq=13 ttl=64 time=11.642 ms
+84 bytes from 192.168.10.12 icmp_seq=14 ttl=64 time=12.575 ms
+84 bytes from 192.168.10.12 icmp_seq=15 ttl=64 time=101.222 ms
+84 bytes from 192.168.10.12 icmp_seq=16 ttl=64 time=66.413 ms
+192.168.10.12 icmp_seq=17 timeout
+192.168.10.12 icmp_seq=18 timeout
+192.168.10.12 icmp_seq=19 timeout
+192.168.10.12 icmp_seq=20 timeout
+192.168.10.12 icmp_seq=21 timeout
+192.168.10.12 icmp_seq=22 timeout
+192.168.10.12 icmp_seq=23 timeout
+192.168.10.12 icmp_seq=24 timeout
+192.168.10.12 icmp_seq=25 timeout
+192.168.10.12 icmp_seq=26 timeout
+84 bytes from 192.168.10.12 icmp_seq=27 ttl=64 time=72.750 ms
+84 bytes from 192.168.10.12 icmp_seq=28 ttl=64 time=24.663 ms
+84 bytes from 192.168.10.12 icmp_seq=29 ttl=64 time=24.009 ms
+84 bytes from 192.168.10.12 icmp_seq=30 ttl=64 time=80.072 ms
+
+~~~
