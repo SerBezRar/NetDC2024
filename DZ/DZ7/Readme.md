@@ -25,10 +25,10 @@
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
 
 Логика выбора ethernet-segment будет следующая:
-0000:0000:0000:<leaf-pair-number>:<port-channel-number>
+0000:0000:0000:leaf-pair-number:port-channel-number
 
 Логика выбора LACP system-id будет следующая:
-0000.<leaf-pair-number>.<port-channel-number>
+0000.leaf-pair-number.port-channel-number
 
 === Leaf1 10.1.0.1
 
