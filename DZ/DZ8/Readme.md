@@ -24,40 +24,58 @@
 
 ![](pictures/Topo.PNG)
 
-## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ1)
+## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ 1, 2, 4, 5, 6)
 
 Для проверки работы можно бы
-
-=== Leaf1 10.1.0.1
-
-```
-interface Ethernet8
-   channel-group 12 mode active
-!
-interface Port-Channel12
-   switchport access vlan 10
-   !
-   evpn ethernet-segment
-      identifier 0000:0000:0000:0012:0012
-      route-target import 00:00:00:00:12:12
-   lacp system-id 0000.0012.0012
-!
-```
 
 === Leaf2 10.1.0.2
 
 ```
-interface Ethernet8
-   channel-group 12 mode active
+vlan 10,20,50,60
 !
-interface Port-Channel12
+vrf instance TENANT1
+!
+vrf instance TENANT2
+!
+interface Ethernet6
+   switchport access vlan 50
+!
+interface Ethernet7
    switchport access vlan 10
-   !
-   evpn ethernet-segment
-      identifier 0000:0000:0000:0012:0012
-      route-target import 00:00:00:00:12:12
-   lacp system-id 0000.0012.0012
 !
+interface Vlan10
+   vrf TENANT1
+   ip address virtual 192.168.10.254/24
+!
+interface Vlan50
+   vrf TENANT2
+   ip address virtual 10.99.50.254/24
+!
+interface Vlan60
+   vrf TENANT2
+   ip address virtual 10.99.60.254/24
+!
+interface Vxlan1
+   vxlan vrf TENANT1 vni 20001
+   vxlan vrf TENANT2 vni 20002
+!
+ip virtual-router mac-address 00:00:aa:00:00:02
+!
+ip routing vrf TENANT1
+ip routing vrf TENANT2
+!
+router bgp 65002
+   vrf TENANT1
+      rd 10.1.0.2:20001
+      route-target import evpn 1:20001
+      route-target export evpn 1:20001
+      redistribute connected
+   !
+   vrf TENANT2
+      rd 10.1.0.2:20002
+      route-target import evpn 2:20002
+      route-target export evpn 2:20002
+      redistribute connected
 ```
 
 === Client1 192.168.10.1
