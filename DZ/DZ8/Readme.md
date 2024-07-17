@@ -80,8 +80,56 @@ router bgp 65002
       redistribute connected
 ```
 
+=== Leaf3 10.1.0.2
+
+```
+service routing protocols model multi-agent
+!
+vrf instance TENANT1
+!
+vrf instance TENANT2
+!
+interface Ethernet4
+   no switchport
+   vrf TENANT1
+   ip address 172.16.1.1/24
+!
+interface Ethernet5
+   no switchport
+   vrf TENANT2
+   ip address 172.16.2.1/24
+!
+interface Vxlan1
+   vxlan vrf TENANT1 vni 20001
+   vxlan vrf TENANT2 vni 20002
+!
+ip virtual-router mac-address 00:00:aa:00:00:03
+!
+ip routing vrf TENANT1
+ip routing vrf TENANT2
+!
+router bgp 65003
+   vrf TENANT1
+      rd 10.1.0.3:20001
+      route-target import evpn 1:20001
+      route-target export evpn 1:20001
+      neighbor 172.16.1.254 remote-as 64999
+      neighbor 172.16.1.254 allowas-in 3
+      redistribute connected
+   !
+   vrf TENANT2
+      rd 10.1.0.3:20002
+      route-target import evpn 2:20002
+      route-target export evpn 2:20002
+      neighbor 172.16.2.254 remote-as 64999
+      neighbor 172.16.2.254 allowas-in 3
+      redistribute connected
+
+```
+
 === extrouter 9.9.9.9
 
+```
 service routing protocols model multi-agent
 !
 hostname extrouter
@@ -113,7 +161,10 @@ router bgp 64999
    neighbor 172.16.2.1 peer group FABRIC
    neighbor 172.16.2.1 remote-as 65003
    neighbor 172.16.2.1 default-originate
+   aggregate-address 10.99.0.0/16 summary-only
+   aggregate-address 192.168.0.0/16 summary-only
    redistribute connected
+```
 
 === Client2 192.168.10.2
 
@@ -125,7 +176,7 @@ save
 === Client5 10.99.50.5
 
 ```
-ip 192.168.10.2/24 192.168.10.254
+ip 10.99.50.5/24 10.99.50.254
 save
 ```
 
