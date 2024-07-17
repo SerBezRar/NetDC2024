@@ -9,7 +9,7 @@
 Также полагаем Spine, Leaf настроенными на L2VPN, L3VPN из ДЗ5, ДЗ6 (Урок 11 и 12).
 Выбран OSPF Underlay из ДЗ2 (Урок 5).
 Выбран eBGP EVPN Overlay ДЗ4 (Урок 8).
-Для extrouter выбрано анонсирование default-route.
+Для extrouter выбрано анонсирование default-route, aggregate-address (+allowas-in).
 
 Для выполнения ДЗ выбран внешний роутер для имитации внешней маршрутизации (с точки зрения фабрики) и сети Интернет.
 
@@ -185,189 +185,162 @@ save
 
 #### 3.1. Проверка работы общая 
 
-Выполняется с помощью ping между Client1 (192.168.10.1) - MHClient1 (192.168.10.12)
-Приведены выводы Client1 (VPCS) и MHClient1 (Arista)
+Выполняется с помощью ping, trace между Client2 (192.168.10.2) - Client5 (10.99.50.5)
+Выполняется с помощью ping, trace между Client2 (192.168.10.2) - extrouter (9.9.9.9)
+Приведены выводы Client2 (VPCS)
 
 Что важно отметить - что Port-Channel LACP на MHClient1 заработал с разными Leaf коммутаторами на другой стороне, причём они не собраны с помощью MC-LAG или Stack технологий. Только ESI EVPN.
 
 ~~~
-VPCS> ping 192.168.10.12
+VPCS> ping 10.99.50.5
 
-84 bytes from 192.168.10.12 icmp_seq=1 ttl=64 time=11.624 ms
-84 bytes from 192.168.10.12 icmp_seq=2 ttl=64 time=16.873 ms
-84 bytes from 192.168.10.12 icmp_seq=3 ttl=64 time=13.118 ms
-84 bytes from 192.168.10.12 icmp_seq=4 ttl=64 time=14.451 ms
-84 bytes from 192.168.10.12 icmp_seq=5 ttl=64 time=12.114 ms
+84 bytes from 10.99.50.5 icmp_seq=1 ttl=59 time=69.114 ms
+84 bytes from 10.99.50.5 icmp_seq=2 ttl=59 time=64.861 ms
+84 bytes from 10.99.50.5 icmp_seq=3 ttl=59 time=78.669 ms
+84 bytes from 10.99.50.5 icmp_seq=4 ttl=59 time=91.409 ms
+^C
+VPCS> ping 9.9.9.9
 
-VPCS> sh arp
+84 bytes from 9.9.9.9 icmp_seq=1 ttl=62 time=47.383 ms
+84 bytes from 9.9.9.9 icmp_seq=2 ttl=62 time=34.522 ms
+84 bytes from 9.9.9.9 icmp_seq=3 ttl=62 time=30.237 ms
+84 bytes from 9.9.9.9 icmp_seq=4 ttl=62 time=33.011 ms
+^C
+VPCS> trace 10.99.50.5
+trace to 10.99.50.5, 8 hops max, press Ctrl+C to stop
+ 1   192.168.10.254   6.272 ms  7.455 ms  7.101 ms
+ 2   192.168.20.254   25.847 ms  24.539 ms  24.607 ms
+ 3   172.16.1.254   34.786 ms  33.738 ms  36.587 ms
+ 4   172.16.2.1   37.006 ms  40.195 ms  38.255 ms
+ 5   10.99.50.254   61.800 ms  58.768 ms  62.140 ms
+ 6   *10.99.50.5   68.674 ms (ICMP type:3, code:3, Destination port unreachable)
 
-50:00:00:af:d3:f6  192.168.10.12 expires in 112 seconds
-
-
-mhclient1#sh arp
-Address         Age (sec)  Hardware Addr   Interface
-192.168.10.1      0:19:36  0050.7966.6806  Port-Channel12
-
-
-
-mhclient1#sh lacp peer detailed
-State: A = Active, P = Passive; S=ShortTimeout, L=LongTimeout;
-       G = Aggregable, I = Individual; s+=InSync, s-=OutOfSync;
-       C = Collecting (aggregating incoming frames), X = state machine expired,
-       D = Distributing (aggregating outgoing frames),
-       d = default neighbor state
-             |          |                       Partner
-Port Status  | Select   | Sys-id                 Port# State   OperKey PortPri
----- --------|----------|----------------------- ----- ------- ------- --------
-Port Channel Port-Channel12:
-Et1  Bundled | Selected | 8000,00-00-00-12-00-12     8 ALGs+CD  0x000c   32768
-Et2  Bundled | Selected | 8000,00-00-00-12-00-12     8 ALGs+CD  0x000c   32768
-
-                         |   Partner    Collector
-   Port         Status   |   Churn       MaxDelay
----------- --------------|------------- ---------
-Port Channel Port-Channel12:
-   Et1          Bundled  |   noChurn            0
-   Et2          Bundled  |   noChurn            0
+VPCS>
 
 
-leaf1#sh bgp evpn instance vlan 10
-EVPN instance: VLAN 10
-  Route distinguisher: 0:0
-  Route target import: Route-Target-AS:10:10010
-  Route target export: Route-Target-AS:10:10010
-  Service interface: VLAN-based
-  Local VXLAN IP address: 10.0.0.1
-  VXLAN: enabled
-  MPLS: disabled
-  Local ethernet segment:
-    ESI: 0000:0000:0000:0012:0012
-      Interface: Port-Channel12
-      Mode: all-active
-      State: up
-      ES-Import RT: 00:00:00:00:12:12
-      DF election algorithm: modulus
-      Designated forwarder: 10.0.0.1
-      Non-Designated forwarder: 10.0.0.2
+leaf2#sh ip ro vrf TENANT1
+
+VRF: TENANT1
+Codes: C - connected, S - static, K - kernel,
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route
+
+Gateway of last resort:
+ B E      0.0.0.0/0 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      9.9.9.9/32 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      172.16.1.0/24 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      172.16.2.0/24 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ C        192.168.10.0/24 is directly connected, Vlan10
+ B E      192.168.20.0/24 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      192.168.0.0/16 [200/0] via VTEP 10.0.0.3 VNI 20001 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+
+leaf2#
+leaf2#sh ip ro vrf TENANT2
+
+VRF: TENANT2
+Codes: C - connected, S - static, K - kernel,
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route
+
+Gateway of last resort:
+ B E      0.0.0.0/0 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      9.9.9.9/32 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ C        10.99.50.0/24 is directly connected, Vlan50
+ C        10.99.60.0/24 is directly connected, Vlan60
+ B E      172.16.1.0/24 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      172.16.2.0/24 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      192.168.0.0/16 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
 
 
-spine1#sh bgp evpn
+leaf2#sh bgp evpn
 BGP routing table information for VRF default
-Router identifier 10.1.1.1, local AS number 65000
+Router identifier 10.1.0.2, local AS number 65002
 Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
                     c - Contributing to ECMP, % - Pending BGP convergence
 Origin codes: i - IGP, e - EGP, ? - incomplete
 AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
 
           Network                Next Hop              Metric  LocPref Weight  Path
- * >      RD: 10.1.0.1:10 auto-discovery 0 0000:0000:0000:0012:0012
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.1.0.2:10 auto-discovery 0 0000:0000:0000:0012:0012
-                                 10.0.0.2              -       100     0       65002 i
- * >      RD: 10.0.0.1:1 auto-discovery 0000:0000:0000:0012:0012
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.0.0.2:1 auto-discovery 0000:0000:0000:0012:0012
-                                 10.0.0.2              -       100     0       65002 i
- * >      RD: 10.1.0.1:10 mac-ip 0050.7966.6806
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.1.0.1:10 mac-ip 0050.7966.6806 192.168.10.1
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.1.0.1:10 mac-ip 5000.00af.d3f6
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.1.0.1:10 imet 10.0.0.1
-                                 10.0.0.1              -       100     0       65001 i
+ * >Ec    RD: 10.1.0.1:10 imet 10.0.0.1
+                                 10.0.0.1              -       100     0       65000 65001 i
+ *  ec    RD: 10.1.0.1:10 imet 10.0.0.1
+                                 10.0.0.1              -       100     0       65000 65001 i
  * >      RD: 10.1.0.2:10 imet 10.0.0.2
-                                 10.0.0.2              -       100     0       65002 i
- * >      RD: 10.1.0.3:10 imet 10.0.0.3
-                                 10.0.0.3              -       100     0       65003 i
- * >      RD: 10.0.0.1:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.1
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.0.0.2:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.2
-                                 10.0.0.2              -       100     0       65002 i
- * >      RD: 10.1.0.1:20001 ip-prefix 192.168.10.0/24
-                                 10.0.0.1              -       100     0       65001 i
- * >      RD: 10.1.0.3:20001 ip-prefix 192.168.20.0/24
-                                 10.0.0.3              -       100     0       65003 i
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.0.3:10 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:10 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 0.0.0.0/0
+                                 10.0.0.3              -       100     0       65000 65003 64999 ?
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 0.0.0.0/0
+                                 10.0.0.3              -       100     0       65000 65003 64999 ?
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 0.0.0.0/0
+                                 10.0.0.3              -       100     0       65000 65003 64999 ?
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 0.0.0.0/0
+                                 10.0.0.3              -       100     0       65000 65003 64999 ?
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 9.9.9.9/32
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 9.9.9.9/32
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 9.9.9.9/32
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 9.9.9.9/32
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ * >      RD: 10.1.0.2:20002 ip-prefix 10.99.50.0/24
+                                 -                     -       -       0       i
+ * >      RD: 10.1.0.2:20002 ip-prefix 10.99.60.0/24
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 172.16.1.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 172.16.1.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 172.16.1.0/24
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 172.16.1.0/24
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 172.16.2.0/24
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 172.16.2.0/24
+                                 10.0.0.3              -       100     0       65000 65003 64999 i
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 172.16.2.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 172.16.2.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 192.168.0.0/16
+                                 10.0.0.3              -       100     0       65000 65003 64999 65003 i
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 192.168.0.0/16
+                                 10.0.0.3              -       100     0       65000 65003 64999 65003 i
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 192.168.0.0/16
+                                 10.0.0.3              -       100     0       65000 65003 64999 65003 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 192.168.0.0/16
+                                 10.0.0.3              -       100     0       65000 65003 64999 65003 i
+ * >Ec    RD: 10.1.0.1:20001 ip-prefix 192.168.10.0/24
+                                 10.0.0.1              -       100     0       65000 65001 i
+ *  ec    RD: 10.1.0.1:20001 ip-prefix 192.168.10.0/24
+                                 10.0.0.1              -       100     0       65000 65001 i
+ * >      RD: 10.1.0.2:20001 ip-prefix 192.168.10.0/24
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.1.0.3:20001 ip-prefix 192.168.20.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:20001 ip-prefix 192.168.20.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
 
-~~~
-
-Замечу что тут вывод содержит "лишние" mac-ip, ip-prefix маршруты, так как остались L2VPN, L3VPN VNI конфигурации.
-
-
-#### 3.2. Проверка работы при переходных процессах
-
-Ниже проверка работы при выключении-включении линков Leaf1 - Eth8, который по умолчанию становится DF
-
-1. icmp_seq = 5 - потерян при выключении линка Leaf1-Eth8
-2. icmp_seq = 10-19 - потеряны при включении линка Leaf1-Eth8.
-
-
-~~~
-VPCS> ping 192.168.10.12 -t
-
-84 bytes from 192.168.10.12 icmp_seq=1 ttl=64 time=13.258 ms
-84 bytes from 192.168.10.12 icmp_seq=2 ttl=64 time=12.212 ms
-84 bytes from 192.168.10.12 icmp_seq=3 ttl=64 time=12.033 ms
-84 bytes from 192.168.10.12 icmp_seq=4 ttl=64 time=14.485 ms
-192.168.10.12 icmp_seq=5 timeout
-84 bytes from 192.168.10.12 icmp_seq=6 ttl=64 time=82.046 ms
-84 bytes from 192.168.10.12 icmp_seq=7 ttl=64 time=127.038 ms
-84 bytes from 192.168.10.12 icmp_seq=8 ttl=64 time=40.480 ms
-84 bytes from 192.168.10.12 icmp_seq=9 ttl=64 time=50.117 ms
-192.168.10.12 icmp_seq=10 timeout
-192.168.10.12 icmp_seq=11 timeout
-192.168.10.12 icmp_seq=12 timeout
-192.168.10.12 icmp_seq=13 timeout
-192.168.10.12 icmp_seq=14 timeout
-192.168.10.12 icmp_seq=15 timeout
-192.168.10.12 icmp_seq=16 timeout
-192.168.10.12 icmp_seq=17 timeout
-192.168.10.12 icmp_seq=18 timeout
-192.168.10.12 icmp_seq=19 timeout
-84 bytes from 192.168.10.12 icmp_seq=20 ttl=64 time=25.128 ms
-84 bytes from 192.168.10.12 icmp_seq=21 ttl=64 time=21.659 ms
-84 bytes from 192.168.10.12 icmp_seq=22 ttl=64 time=25.739 ms
-84 bytes from 192.168.10.12 icmp_seq=23 ttl=64 time=13.840 ms
-84 bytes from 192.168.10.12 icmp_seq=24 ttl=64 time=16.250 ms
-
-~~~
-
-Ниже проверка работы при выключении-включении линков Leaf2 - Eth8, который по умолчанию не становится DF
-
-1. icmp_seq = 17-26 - потеряны при включении линка Leaf2-Eth8.
-
-~~~
-VPCS> ping 192.168.10.12 -t
-
-84 bytes from 192.168.10.12 icmp_seq=1 ttl=64 time=18.513 ms
-84 bytes from 192.168.10.12 icmp_seq=2 ttl=64 time=12.986 ms
-84 bytes from 192.168.10.12 icmp_seq=3 ttl=64 time=11.903 ms
-84 bytes from 192.168.10.12 icmp_seq=4 ttl=64 time=11.842 ms
-84 bytes from 192.168.10.12 icmp_seq=5 ttl=64 time=14.012 ms
-84 bytes from 192.168.10.12 icmp_seq=6 ttl=64 time=11.879 ms
-84 bytes from 192.168.10.12 icmp_seq=7 ttl=64 time=11.707 ms
-84 bytes from 192.168.10.12 icmp_seq=8 ttl=64 time=11.869 ms
-84 bytes from 192.168.10.12 icmp_seq=9 ttl=64 time=12.917 ms
-84 bytes from 192.168.10.12 icmp_seq=10 ttl=64 time=13.510 ms
-84 bytes from 192.168.10.12 icmp_seq=11 ttl=64 time=11.881 ms
-84 bytes from 192.168.10.12 icmp_seq=12 ttl=64 time=14.127 ms
-84 bytes from 192.168.10.12 icmp_seq=13 ttl=64 time=11.642 ms
-84 bytes from 192.168.10.12 icmp_seq=14 ttl=64 time=12.575 ms
-84 bytes from 192.168.10.12 icmp_seq=15 ttl=64 time=101.222 ms
-84 bytes from 192.168.10.12 icmp_seq=16 ttl=64 time=66.413 ms
-192.168.10.12 icmp_seq=17 timeout
-192.168.10.12 icmp_seq=18 timeout
-192.168.10.12 icmp_seq=19 timeout
-192.168.10.12 icmp_seq=20 timeout
-192.168.10.12 icmp_seq=21 timeout
-192.168.10.12 icmp_seq=22 timeout
-192.168.10.12 icmp_seq=23 timeout
-192.168.10.12 icmp_seq=24 timeout
-192.168.10.12 icmp_seq=25 timeout
-192.168.10.12 icmp_seq=26 timeout
-84 bytes from 192.168.10.12 icmp_seq=27 ttl=64 time=72.750 ms
-84 bytes from 192.168.10.12 icmp_seq=28 ttl=64 time=24.663 ms
-84 bytes from 192.168.10.12 icmp_seq=29 ttl=64 time=24.009 ms
-84 bytes from 192.168.10.12 icmp_seq=30 ttl=64 time=80.072 ms
 
 ~~~
