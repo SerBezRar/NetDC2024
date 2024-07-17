@@ -26,7 +26,9 @@
 
 ## 2. Конфигурации, добавляемые в рамках данного ДЗ (остальное взято из ДЗ 1, 2, 4, 5, 6)
 
-Для проверки используем машины Client2, Client 5 подключенные в разные vrf (TENANT1, TENANT2)
+Для проверки взаимодействия между vrf используем машины Client2, Client 5 подключенные в разные vrf (TENANT1, TENANT2)
+Для проверки работы "сети Интернет" используем ip.addr 9.9.9.9 на Lo extrouter.
+
 
 === Leaf2 10.1.0.2
 
@@ -78,27 +80,53 @@ router bgp 65002
       redistribute connected
 ```
 
-=== Client1 192.168.10.1
+=== extrouter 9.9.9.9
+
+service routing protocols model multi-agent
+!
+hostname extrouter
+!
+interface Ethernet1
+   no switchport
+   ip address 172.16.1.254/24
+!
+interface Ethernet2
+   no switchport
+   ip address 172.16.2.254/24
+!
+interface Loopback9
+   ip address 9.9.9.9/32
+!
+ip routing
+!
+ip route 0.0.0.0/0 Null0
+!
+router bgp 64999
+   router-id 9.9.9.9
+   timers bgp 3 9
+   neighbor FABRIC peer group
+   neighbor FABRIC bfd
+   neighbor FABRIC ebgp-multihop
+   neighbor 172.16.1.1 peer group FABRIC
+   neighbor 172.16.1.1 remote-as 65003
+   neighbor 172.16.1.1 default-originate
+   neighbor 172.16.2.1 peer group FABRIC
+   neighbor 172.16.2.1 remote-as 65003
+   neighbor 172.16.2.1 default-originate
+   redistribute connected
+
+=== Client2 192.168.10.2
 
 ```
-ip 192.168.10.1/24 192.168.10.254
+ip 192.168.10.2/24 192.168.10.254
 save
 ```
 
-=== MHClient1 192.168.10.12
+=== Client5 10.99.50.5
 
 ```
-interface Ethernet1
-   channel-group 12 mode active
-!
-interface Ethernet2
-   channel-group 12 mode active
-!
-interface Port-Channel12
-   no switchport
-   ip address 192.168.10.12/24
-!
-ip route 0.0.0.0 0.0.0.0 192.168.10.254
+ip 192.168.10.2/24 192.168.10.254
+save
 ```
 
 
