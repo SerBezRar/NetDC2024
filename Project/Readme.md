@@ -237,7 +237,7 @@ System Profile (TCAM Resource)
 System (Clock, NTP и т.д. )
 Mgmt Plane (Log, SNMP и т.д.)
 
---- Предварительная и общая конфигурация Leaf, Spine
+--- Предварительная и общая конфигурация Leaf, Spine (на примере Leaf1)
 
 конфигурация имени устройства
 ```
@@ -251,19 +251,21 @@ write
 reload
 ```
 
---- Конфигурация интерфейсов для Leaf
+--- Конфигурация интерфейсов для Leaf (на примере Leaf1)
 
 конфигурация интерфейсов в сторону Spine, включаем режим L3 порта, настраиваем адресацию
 ```
 interface Ethernet1
    no switchport
-   ip address 10.2.1.2/30
+   ip address 10.1.1.2/30
+!
 interface Ethernet2
    no switchport
-   ip address 10.2.2.2/30
+   ip address 10.2.1.2/30
+!
 interface Ethernet3
    no switchport
-   ip address 10.2.3.2/30
+   ip address 10.3.1.2/30
 ```
 
 конфигурация Loopback интерфейса для задач терминации eBGP EVPN сессий
@@ -275,22 +277,23 @@ interface Loopback1
    ip address 10.1.0.1/32
 ```
 
---- Конфигурация интерфейсов для Spine
+--- Конфигурация интерфейсов для Spine (на примере Spine1)
 ```
 interface Ethernet1
    no switchport
-   ip address 10.2.1.1/30
-   ip ospf network point-to-point
+   ip address 10.1.1.1/30
 !
 interface Ethernet2
    no switchport
-   ip address 10.2.1.5/30
-   ip ospf network point-to-point
+   ip address 10.1.2.1/30
 !
 interface Ethernet3
    no switchport
-   ip address 10.2.1.9/30
-   ip ospf network point-to-point
+   ip address 10.1.3.1/30
+!
+interface Ethernet4
+   no switchport
+   ip address 10.1.4.1/30
 ```
 --- Конфигурация маршрутизации Underlay для Leaf и Spine (на примере Leaf1)
 
@@ -299,7 +302,7 @@ interface Ethernet3
 ip routing
 ```
 
-конфигурация OSPF основная для работы Underlay маршрутизации
+конфигурация OSPF - основная для работы Underlay маршрутизации
 ```
 router ospf 1
 ```
