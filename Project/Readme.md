@@ -529,10 +529,6 @@ ip route 0.0.0.0/0 192.168.10.254
 
 ## Итоговые конфигурации
 
-<details>
-<summary>Шаблон</summary>
-<pre><code>
-
 </code></pre>
 </details>
 
