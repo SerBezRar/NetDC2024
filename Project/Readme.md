@@ -677,35 +677,511 @@ end
 </details>
 
 
-
-
-
 <details>
-<summary>Шаблон</summary>
+<summary>Конфигурация Leaf3</summary>
 <pre><code>
-
+! Command: show running-config
+! device: leaf3 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf3
+!
+spanning-tree mode mstp
+!
+vlan 20,60
+!
+vrf instance TENANT2
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.3.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.3.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.3.3.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   switchport access vlan 20
+!
+interface Ethernet8
+   switchport access vlan 60
+!
+interface Loopback0
+   ip address 10.0.0.3/32
+!
+interface Loopback1
+   ip address 10.0.1.3/32
+!
+interface Management1
+!
+interface Vlan60
+   vrf TENANT2
+   ip address virtual 10.99.60.254/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 20 vni 10020
+   vxlan vlan 60 vni 10060
+   vxlan vrf TENANT2 vni 20002
+!
+ip routing
+ip routing vrf TENANT2
+!
+router bgp 65003
+   router-id 10.0.1.3
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.0.1.3
+   neighbor PG-SPINE bfd
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.0.2.1 peer group PG-SPINE
+   neighbor 10.0.2.2 peer group PG-SPINE
+   neighbor 10.0.2.3 peer group PG-SPINE
+   !
+   vlan 20
+      rd auto
+      route-target both 20:10020
+      redistribute learned
+   !
+   vlan 60
+      rd auto
+      route-target both 60:10060
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
+   !
+   vrf TENANT2
+      rd 10.1.0.3:20002
+      route-target import evpn 2:20002
+      route-target export evpn 2:20002
+      redistribute connected
+!
+router ospf 1
+   router-id 10.0.1.3
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
 </code></pre>
 </details>
 
-
 <details>
-<summary>Шаблон</summary>
+<summary>Конфигурация Leaf4</summary>
 <pre><code>
-
+! Command: show running-config
+! device: leaf4 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf4
+!
+spanning-tree mode mstp
+!
+vlan 10,20
+!
+vrf instance TENANT2
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.4.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.4.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.3.4.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+   switchport access vlan 10
+!
+interface Ethernet7
+   switchport access vlan 20
+!
+interface Ethernet8
+   no switchport
+   vrf TENANT2
+   ip address 172.16.1.1/24
+!
+interface Loopback0
+   ip address 10.0.0.4/32
+!
+interface Loopback1
+   ip address 10.0.1.4/32
+!
+interface Management1
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+   vxlan vlan 20 vni 10020
+   vxlan vrf TENANT2 vni 20002
+!
+ip routing
+ip routing vrf TENANT2
+!
+router bgp 65004
+   router-id 10.0.1.4
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.0.1.4
+   neighbor PG-SPINE bfd
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.0.2.1 peer group PG-SPINE
+   neighbor 10.0.2.2 peer group PG-SPINE
+   neighbor 10.0.2.3 peer group PG-SPINE
+   !
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   vlan 20
+      rd auto
+      route-target both 20:10020
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
+   !
+   vrf TENANT2
+      rd 10.1.0.4:20002
+      route-target import evpn 2:20002
+      route-target export evpn 2:20002
+      neighbor 172.16.1.254 remote-as 64999
+      redistribute connected
+!
+router ospf 1
+   router-id 10.0.1.4
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
 </code></pre>
 </details>
 
-
 <details>
-<summary>Шаблон</summary>
+<summary>Конфигурация Spine1</summary>
 <pre><code>
-
+! Command: show running-config
+! device: spine1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine1
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.1.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.1.2.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.1.3.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+   no switchport
+   ip address 10.1.4.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback1
+   ip address 10.0.2.1/32
+!
+interface Management1
+!
+ip routing
+!
+router bgp 65000
+   router-id 10.0.2.1
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-LEAF peer group
+   neighbor PG-LEAF next-hop-unchanged
+   neighbor PG-LEAF update-source 10.0.2.1
+   neighbor PG-LEAF bfd
+   neighbor PG-LEAF ebgp-multihop
+   neighbor PG-LEAF send-community extended
+   neighbor 10.0.1.1 peer group PG-LEAF
+   neighbor 10.0.1.1 remote-as 65001
+   neighbor 10.0.1.2 peer group PG-LEAF
+   neighbor 10.0.1.2 remote-as 65002
+   neighbor 10.0.1.3 peer group PG-LEAF
+   neighbor 10.0.1.3 remote-as 65003
+   neighbor 10.0.1.4 peer group PG-LEAF
+   neighbor 10.0.1.4 remote-as 65004
+   !
+   address-family evpn
+      neighbor PG-LEAF activate
+!
+router ospf 1
+   router-id 10.0.2.1
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   no passive-interface Ethernet4
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
 </code></pre>
 </details>
 
+<details>
+<summary>Конфигурация Spine2</summary>
+<pre><code>
+! Command: show running-config
+! device: spine2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine2
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.2.1.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.2.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.2.3.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+   no switchport
+   ip address 10.2.4.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback1
+   ip address 10.0.2.2/32
+!
+interface Management1
+!
+ip routing
+!
+router bgp 65000
+   router-id 10.0.2.2
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-LEAF peer group
+   neighbor PG-LEAF next-hop-unchanged
+   neighbor PG-LEAF update-source 10.0.2.2
+   neighbor PG-LEAF bfd
+   neighbor PG-LEAF ebgp-multihop
+   neighbor PG-LEAF send-community extended
+   neighbor 10.0.1.1 peer group PG-LEAF
+   neighbor 10.0.1.1 remote-as 65001
+   neighbor 10.0.1.2 peer group PG-LEAF
+   neighbor 10.0.1.2 remote-as 65002
+   neighbor 10.0.1.3 peer group PG-LEAF
+   neighbor 10.0.1.3 remote-as 65003
+   neighbor 10.0.1.4 peer group PG-LEAF
+   neighbor 10.0.1.4 remote-as 65004
+   !
+   address-family evpn
+      neighbor PG-LEAF activate
+!
+router ospf 1
+   router-id 10.0.2.2
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   no passive-interface Ethernet4
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
+</code></pre>
+</details>
 
-
-
+<details>
+<summary>Конфигурация Spine3</summary>
+<pre><code>
+! Command: show running-config
+! device: spine3 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine3
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.3.1.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.3.2.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.3.3.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+   no switchport
+   ip address 10.3.4.1/30
+   ip ospf network point-to-point
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback1
+   ip address 10.0.2.3/32
+!
+interface Management1
+!
+ip routing
+!
+router bgp 65000
+   router-id 10.0.2.3
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-LEAF peer group
+   neighbor PG-LEAF next-hop-unchanged
+   neighbor PG-LEAF update-source 10.0.2.3
+   neighbor PG-LEAF bfd
+   neighbor PG-LEAF ebgp-multihop
+   neighbor PG-LEAF send-community extended
+   neighbor 10.0.1.1 peer group PG-LEAF
+   neighbor 10.0.1.1 remote-as 65001
+   neighbor 10.0.1.2 peer group PG-LEAF
+   neighbor 10.0.1.2 remote-as 65002
+   neighbor 10.0.1.3 peer group PG-LEAF
+   neighbor 10.0.1.3 remote-as 65003
+   neighbor 10.0.1.4 peer group PG-LEAF
+   neighbor 10.0.1.4 remote-as 65004
+   !
+   address-family evpn
+      neighbor PG-LEAF activate
+!
+router ospf 1
+   router-id 10.0.2.3
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   no passive-interface Ethernet4
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
+</code></pre>
+</details>
 
 === Проверка
 
