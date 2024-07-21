@@ -1625,11 +1625,13 @@ leaf1#sh mac address-table
 
 Vlan    Mac Address       Type        Ports      Moves   Last Move
 ----    -----------       ----        -----      -----   ---------
-  10    5000.0088.fe27    DYNAMIC     Vx1        1       2:30:27 ago
-  10    5000.00af.d3f6    DYNAMIC     Po12       1       2:27:13 ago
-4094    5000.0003.3766    DYNAMIC     Vx1        1       23:33:43 ago
-4094    5000.0015.f4e8    DYNAMIC     Vx1        1       23:15:49 ago
-4094    5000.00f6.ad37    DYNAMIC     Vx1        1       22:50:16 ago
+  10    0050.7966.6806    DYNAMIC     Et7        1       0:00:06 ago
+  10    5000.0088.fe27    DYNAMIC     Vx1        1       2:48:43 ago
+  10    5000.00af.d3f6    DYNAMIC     Po12       1       2:45:28 ago
+4094    5000.0003.3766    DYNAMIC     Vx1        1       23:51:58 ago
+4094    5000.0015.f4e8    DYNAMIC     Vx1        1       23:34:04 ago
+4094    5000.00f6.ad37    DYNAMIC     Vx1        1       23:08:31 ago
+
 Total Mac Addresses for this criterion: 5
 
           Multicast Mac Address Table
