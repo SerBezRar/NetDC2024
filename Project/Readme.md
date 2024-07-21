@@ -1183,6 +1183,56 @@ end
 </code></pre>
 </details>
 
+<details>
+<summary>Конфигурация MHClient1</summary>
+<pre><code>
+! Command: show running-config
+! device: mhclient1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model ribd
+!
+hostname mhclient1
+!
+spanning-tree mode mstp
+!
+interface Port-Channel12
+   no switchport
+   ip address 192.168.10.12/24
+!
+interface Ethernet1
+   channel-group 12 mode active
+!
+interface Ethernet2
+   channel-group 12 mode active
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Management1
+!
+no ip routing
+!
+ip route 0.0.0.0/0 192.168.10.254
+!
+end
+</code></pre>
+</details>
+
 === Проверка
 
 --- Выводы
