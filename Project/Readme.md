@@ -550,6 +550,162 @@ end
 </code></pre>
 </details>
 
+<details>
+<summary>Конфигурация Leaf2</summary>
+<pre><code>
+! Command: show running-config
+! device: leaf2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf2
+!
+spanning-tree mode mstp
+!
+vlan 10,50
+!
+vrf instance TENANT2
+!
+interface Port-Channel12
+   switchport access vlan 10
+   !
+   evpn ethernet-segment
+      identifier 0000:0000:0000:0012:0012
+      route-target import 00:00:00:00:12:12
+   lacp system-id 0000.0012.0012
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.2.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.2.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.3.2.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   switchport access vlan 50
+!
+interface Ethernet8
+   channel-group 12 mode active
+!
+interface Loopback0
+   ip address 10.0.0.2/32
+!
+interface Loopback1
+   ip address 10.0.1.2/32
+!
+interface Management1
+!
+interface Vlan50
+   vrf TENANT2
+   ip address virtual 10.99.50.254/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+   vxlan vlan 50 vni 10050
+   vxlan vrf TENANT2 vni 20002
+!
+ip routing
+ip routing vrf TENANT2
+!
+router bgp 65002
+   router-id 10.0.1.2
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.0.1.2
+   neighbor PG-SPINE bfd
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.0.2.1 peer group PG-SPINE
+   neighbor 10.0.2.2 peer group PG-SPINE
+   neighbor 10.0.2.3 peer group PG-SPINE
+   !
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   vlan 50
+      rd auto
+      route-target both 50:10050
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
+   !
+   vrf TENANT2
+      rd 10.1.0.2:20002
+      route-target import evpn 2:20002
+      route-target export evpn 2:20002
+      redistribute connected
+!
+router ospf 1
+   router-id 10.0.1.2
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
+</code></pre>
+</details>
+
+
+
+
+
+<details>
+<summary>Шаблон</summary>
+<pre><code>
+
+</code></pre>
+</details>
+
+
+<details>
+<summary>Шаблон</summary>
+<pre><code>
+
+</code></pre>
+</details>
+
+
+<details>
+<summary>Шаблон</summary>
+<pre><code>
+
+</code></pre>
+</details>
+
+
+
+
 
 === Проверка
 
