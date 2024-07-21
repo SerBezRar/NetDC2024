@@ -1399,7 +1399,266 @@ end
 
 Проверка Underlay
 
+```
+leaf1#sh ip route
+
+VRF: default
+Codes: C - connected, S - static, K - kernel,
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route
+
+Gateway of last resort is not set
+
+ C        10.0.0.1/32 is directly connected, Loopback0
+ O        10.0.0.2/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ O        10.0.0.3/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ O        10.0.0.4/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ C        10.0.1.1/32 is directly connected, Loopback1
+ O        10.0.1.2/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ O        10.0.1.3/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ O        10.0.1.4/32 [110/30] via 10.1.1.1, Ethernet1
+                               via 10.2.1.1, Ethernet2
+                               via 10.3.1.1, Ethernet3
+ O        10.0.2.1/32 [110/20] via 10.1.1.1, Ethernet1
+ O        10.0.2.2/32 [110/20] via 10.2.1.1, Ethernet2
+ O        10.0.2.3/32 [110/20] via 10.3.1.1, Ethernet3
+ C        10.1.1.0/30 is directly connected, Ethernet1
+ O        10.1.2.0/30 [110/20] via 10.1.1.1, Ethernet1
+ O        10.1.3.0/30 [110/20] via 10.1.1.1, Ethernet1
+ O        10.1.4.0/30 [110/20] via 10.1.1.1, Ethernet1
+ C        10.2.1.0/30 is directly connected, Ethernet2
+ O        10.2.2.0/30 [110/20] via 10.2.1.1, Ethernet2
+ O        10.2.3.0/30 [110/20] via 10.2.1.1, Ethernet2
+ O        10.2.4.0/30 [110/20] via 10.2.1.1, Ethernet2
+ C        10.3.1.0/30 is directly connected, Ethernet3
+ O        10.3.2.0/30 [110/20] via 10.3.1.1, Ethernet3
+ O        10.3.3.0/30 [110/20] via 10.3.1.1, Ethernet3
+ O        10.3.4.0/30 [110/20] via 10.3.1.1, Ethernet3
+```
+
+```
+leaf1#sh ip ospf neighbor
+Neighbor ID     Instance VRF      Pri State                  Dead Time   Address         Interface
+10.0.2.1        1        default  0   FULL                   00:00:29    10.1.1.1        Ethernet1
+10.0.2.3        1        default  0   FULL                   00:00:33    10.3.1.1        Ethernet3
+10.0.2.2        1        default  0   FULL                   00:00:34    10.2.1.1        Ethernet2
+```
+
+```
+leaf1#sh bfd peers
+VRF name: default
+-----------------
+DstAddr      MyDisc    YourDisc  Interface/Transport      Type          LastUp
+-------- ----------- ----------- -------------------- --------- ---------------
+10.0.2.1 1458752227  2180990018                   NA  multihop  07/20/24 17:53
+10.0.2.2 2063007030   543346504                   NA  multihop  07/20/24 17:53
+10.0.2.3 1582795974  1141633842                   NA  multihop  07/20/24 17:54
+10.1.1.1  881530894  3836181073        Ethernet1(15)    normal  07/21/24 07:30
+10.2.1.1 3095622364  4240107659        Ethernet2(16)    normal  07/21/24 07:31
+10.3.1.1 3740663026  2344695893        Ethernet3(17)    normal  07/21/24 07:31
+
+         LastDown            LastDiag    State
+-------------------- ------------------- -----
+   07/20/24 17:53       No Diagnostic       Up
+   07/20/24 17:53       No Diagnostic       Up
+               NA       No Diagnostic       Up
+               NA       No Diagnostic       Up
+               NA       No Diagnostic       Up
+               NA       No Diagnostic       Up
+```
+
+
 Проверка Overlay
+
+```
+leaf1#sh bgp evpn summary
+BGP summary information for VRF default
+Router identifier 10.0.1.1, local AS number 65001
+Neighbor Status Codes: m - Under maintenance
+  Neighbor V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  10.0.2.1 4 65000          36054     36090    0    0    1d00h Estab   15     15
+  10.0.2.2 4 65000          36065     36069    0    0    1d00h Estab   15     15
+  10.0.2.3 4 65000          35212     35186    0    0    1d00h Estab   15     15
+```
+
+```
+leaf1#sh bgp evpn
+BGP routing table information for VRF default
+Router identifier 10.0.1.1, local AS number 65001
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.0.1.1:10 auto-discovery 0 0000:0000:0000:0012:0012
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.0.1.2:10 auto-discovery 0 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:10 auto-discovery 0 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:10 auto-discovery 0 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >      RD: 10.0.0.1:1 auto-discovery 0000:0000:0000:0012:0012
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.0.0.2:1 auto-discovery 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.0.2:1 auto-discovery 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.0.2:1 auto-discovery 0000:0000:0000:0012:0012
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.0.1.4:10 mac-ip 5000.0088.fe27
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:10 mac-ip 5000.0088.fe27
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:10 mac-ip 5000.0088.fe27
+                                 10.0.0.4              -       100     0       65000 65004 i
+ * >      RD: 10.0.1.1:10 mac-ip 5000.00af.d3f6
+                                 -                     -       -       0       i
+ * >      RD: 10.0.1.1:10 imet 10.0.0.1
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.0.1.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:10 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.0.1.2:50 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:50 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.1.2:50 imet 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.0.1.3:20 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.0.1.3:20 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.0.1.3:20 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.0.1.3:60 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.0.1.3:60 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.0.1.3:60 imet 10.0.0.3
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.0.1.4:10 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:10 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:10 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ * >Ec    RD: 10.0.1.4:20 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:20 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.0.1.4:20 imet 10.0.0.4
+                                 10.0.0.4              -       100     0       65000 65004 i
+ * >      RD: 10.0.0.1:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.1
+                                 -                     -       -       0       i
+ * >Ec    RD: 10.0.0.2:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.0.2:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.0.0.2:1 ethernet-segment 0000:0000:0000:0012:0012 10.0.0.2
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.0.4:20002 ip-prefix 0.0.0.0/0
+                                 10.0.0.4              -       100     0       65000 65004 64999 ?
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 0.0.0.0/0
+                                 10.0.0.4              -       100     0       65000 65004 64999 ?
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 0.0.0.0/0
+                                 10.0.0.4              -       100     0       65000 65004 64999 ?
+ * >Ec    RD: 10.1.0.4:20002 ip-prefix 9.9.9.9/32
+                                 10.0.0.4              -       100     0       65000 65004 64999 i
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 9.9.9.9/32
+                                 10.0.0.4              -       100     0       65000 65004 64999 i
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 9.9.9.9/32
+                                 10.0.0.4              -       100     0       65000 65004 64999 i
+ * >Ec    RD: 10.1.0.2:20002 ip-prefix 10.99.50.0/24
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.1.0.2:20002 ip-prefix 10.99.50.0/24
+                                 10.0.0.2              -       100     0       65000 65002 i
+ *  ec    RD: 10.1.0.2:20002 ip-prefix 10.99.50.0/24
+                                 10.0.0.2              -       100     0       65000 65002 i
+ * >Ec    RD: 10.1.0.3:20002 ip-prefix 10.99.60.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 10.99.60.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ *  ec    RD: 10.1.0.3:20002 ip-prefix 10.99.60.0/24
+                                 10.0.0.3              -       100     0       65000 65003 i
+ * >Ec    RD: 10.1.0.4:20002 ip-prefix 172.16.1.0/24
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 172.16.1.0/24
+                                 10.0.0.4              -       100     0       65000 65004 i
+ *  ec    RD: 10.1.0.4:20002 ip-prefix 172.16.1.0/24
+                                 10.0.0.4              -       100     0       65000 65004 i
+```
+
+```
+leaf1#sh mac address-table
+          Mac Address Table
+------------------------------------------------------------------
+
+Vlan    Mac Address       Type        Ports      Moves   Last Move
+----    -----------       ----        -----      -----   ---------
+  10    5000.0088.fe27    DYNAMIC     Vx1        1       2:30:27 ago
+  10    5000.00af.d3f6    DYNAMIC     Po12       1       2:27:13 ago
+4094    5000.0003.3766    DYNAMIC     Vx1        1       23:33:43 ago
+4094    5000.0015.f4e8    DYNAMIC     Vx1        1       23:15:49 ago
+4094    5000.00f6.ad37    DYNAMIC     Vx1        1       22:50:16 ago
+Total Mac Addresses for this criterion: 5
+
+          Multicast Mac Address Table
+------------------------------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       ----        -----
+Total Mac Addresses for this criterion: 0
+```
+
+```
+leaf2#sh ip ro vrf TENANT2
+
+VRF: TENANT2
+Codes: C - connected, S - static, K - kernel,
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route
+
+Gateway of last resort:
+ B E      0.0.0.0/0 [200/0] via VTEP 10.0.0.4 VNI 20002 router-mac 50:00:00:f6:ad:37 local-interface Vxlan1
+
+ B E      9.9.9.9/32 [200/0] via VTEP 10.0.0.4 VNI 20002 router-mac 50:00:00:f6:ad:37 local-interface Vxlan1
+ C        10.99.50.0/24 is directly connected, Vlan50
+ B E      10.99.60.0/24 [200/0] via VTEP 10.0.0.3 VNI 20002 router-mac 50:00:00:15:f4:e8 local-interface Vxlan1
+ B E      172.16.1.0/24 [200/0] via VTEP 10.0.0.4 VNI 20002 router-mac 50:00:00:f6:ad:37 local-interface Vxlan1
+```
+
+Проверка с помощью конечных хостов
 
 TENANT1
 - Проверка ping через extrouter в другую подсеть
