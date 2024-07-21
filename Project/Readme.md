@@ -233,15 +233,21 @@ Mgmt Plane (Log, SNMP и т.д.)
 --- Предварительная и общая конфигурация Leaf, Spine
 
 конфигурация имени устройства
+```
 hostname leaf1
+```
 
 конфигурация актуального Route Table Manager
+```
 service routing protocols model multi-agent
+write
 reload
+```
 
 --- Конфигурация интерфейсов для Leaf
 
 конфигурация интерфейсов в сторону Spine, включаем режим L3 порта, настраиваем адресацию
+```
 interface Ethernet1
    no switchport
    ip address 10.2.1.2/30
@@ -251,6 +257,7 @@ interface Ethernet2
 interface Ethernet3
    no switchport
    ip address 10.2.3.2/30
+```
 
 конфигурация Loopback интерфейса для задач терминации eBGP EVPN сессий
 конфигурация Loopback интерфейса для задач терминации VXLAN туннелей
