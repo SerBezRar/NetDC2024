@@ -95,6 +95,7 @@ Overlay - обеспечивает передачу конечного клие�
 2. underlay ip address and network underlay планировании (ip.addr-net plan)
 3. overlay evpn vxlan instances - vni, macvrf, vrf, rd, rt, esi, virtual-mac
 
+
 1. underlay interface connection планировании (int plan)
 --- Нумерация подключения p2p линков для соединения Leaf-Spine, для удобства и для соответствия ip.addr-net plan формируется по 
 следующим правилам:
