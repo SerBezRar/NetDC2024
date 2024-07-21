@@ -1665,9 +1665,33 @@ TENANT1
 Client1 (192.168.10.1)
 ping 192.168.20.3
 
+```
+VPCS> ping 192.168.20.3
+
+84 bytes from 192.168.20.3 icmp_seq=1 ttl=63 time=68.461 ms
+84 bytes from 192.168.20.3 icmp_seq=2 ttl=63 time=90.018 ms
+84 bytes from 192.168.20.3 icmp_seq=3 ttl=63 time=71.003 ms
+84 bytes from 192.168.20.3 icmp_seq=4 ttl=63 time=83.174 ms
+84 bytes from 192.168.20.3 icmp_seq=5 ttl=63 time=66.711 ms
+```
+
 - Проверка ping через extrouter в "Интернет" (8.8.8.8)
 Client12 (192.168.10.12)
 ping 8.8.8.8
+
+```
+mhclient1#ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 72(100) bytes of data.
+80 bytes from 8.8.8.8: icmp_seq=1 ttl=64 time=67.6 ms
+80 bytes from 8.8.8.8: icmp_seq=2 ttl=64 time=76.4 ms
+80 bytes from 8.8.8.8: icmp_seq=3 ttl=64 time=70.0 ms
+80 bytes from 8.8.8.8: icmp_seq=4 ttl=64 time=64.3 ms
+80 bytes from 8.8.8.8: icmp_seq=5 ttl=64 time=59.4 ms
+
+--- 8.8.8.8 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 47ms
+rtt min/avg/max/mdev = 59.409/67.585/76.454/5.695 ms, pipe 5, ipg/ewma 11.759/67.205 ms
+```
 
 TENANT2
 
@@ -1675,10 +1699,29 @@ TENANT2
 Client2 (10.99.50.2)
 ping 10.99.60.4
 
+```
+VPCS> ping 10.99.60.4
+
+84 bytes from 10.99.60.4 icmp_seq=1 ttl=62 time=141.502 ms
+84 bytes from 10.99.60.4 icmp_seq=2 ttl=62 time=40.325 ms
+84 bytes from 10.99.60.4 icmp_seq=3 ttl=62 time=35.809 ms
+84 bytes from 10.99.60.4 icmp_seq=4 ttl=62 time=53.096 ms
+84 bytes from 10.99.60.4 icmp_seq=5 ttl=62 time=31.612 ms
+```
+
 - Проверка ping через extrouter во внешние сети (9.9.9.9)
 Client4 (10.99.60.4)
 ping 9.9.9.9
 
+```
+VPCS> ping 9.9.9.9
+
+84 bytes from 9.9.9.9 icmp_seq=1 ttl=62 time=73.947 ms
+84 bytes from 9.9.9.9 icmp_seq=2 ttl=62 time=32.509 ms
+84 bytes from 9.9.9.9 icmp_seq=3 ttl=62 time=32.574 ms
+84 bytes from 9.9.9.9 icmp_seq=4 ttl=62 time=32.172 ms
+84 bytes from 9.9.9.9 icmp_seq=5 ttl=62 time=42.430 ms
+```
 
 ## Выводы
 
