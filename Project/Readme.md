@@ -1271,6 +1271,80 @@ end
 </code></pre>
 </details>
 
+
+<details>
+<summary>Конфигурация Extrouter</summary>
+<pre><code>
+! Command: show running-config
+! device: extrouter (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname extrouter
+!
+spanning-tree mode mstp
+!
+vrf instance TENANT1
+!
+interface Ethernet1
+!
+interface Ethernet2
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+   no switchport
+   vrf TENANT1
+   ip address 192.168.10.254/24
+!
+interface Ethernet7
+   no switchport
+   vrf TENANT1
+   ip address 192.168.20.254/24
+!
+interface Ethernet8
+   no switchport
+   ip address 172.16.1.254/24
+!
+interface Loopback8
+   vrf TENANT1
+   ip address 8.8.8.8/32
+!
+interface Loopback9
+   ip address 9.9.9.9/32
+!
+interface Management1
+!
+ip routing
+ip routing vrf TENANT1
+!
+ip route 0.0.0.0/0 Null0
+!
+router bgp 64999
+   router-id 9.9.9.9
+   timers bgp 3 9
+   neighbor FABRIC peer group
+   neighbor FABRIC bfd
+   neighbor FABRIC ebgp-multihop
+   neighbor 172.16.1.1 peer group FABRIC
+   neighbor 172.16.1.1 remote-as 65004
+   neighbor 172.16.1.1 default-originate
+   redistribute connected
+!
+end
+</code></pre>
+</details>
+
 <details>
 <summary>Конфигурация MHClient1</summary>
 <pre><code>
@@ -1346,10 +1420,6 @@ ping 10.99.60.4
 Client4 (10.99.60.4)
 ping 9.9.9.9
 
-
-```
-123 - gfhdgf
-```
 
 ## Выводы
 
