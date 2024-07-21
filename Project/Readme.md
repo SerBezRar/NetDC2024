@@ -261,13 +261,15 @@ interface Ethernet3
 
 конфигурация Loopback интерфейса для задач терминации eBGP EVPN сессий
 конфигурация Loopback интерфейса для задач терминации VXLAN туннелей
+```
 interface Loopback0
    ip address 10.0.0.1/32
 interface Loopback1
    ip address 10.1.0.1/32
+```
 
 --- Конфигурация интерфейсов для Spine
-
+```
 interface Ethernet1
    no switchport
    ip address 10.2.1.1/30
@@ -282,100 +284,135 @@ interface Ethernet3
    no switchport
    ip address 10.2.1.9/30
    ip ospf network point-to-point
-
+```
 --- Конфигурация маршрутизации Underlay для Leaf и Spine (на примере Leaf1)
 
 конфигурация общая для работы Underlay маршрутизации
+```
 ip routing
+```
 
 конфигурация OSPF основная для работы Underlay маршрутизации
+```
 router ospf 1
+```
 
 конфигурация router-id, будет соответствовать Lo1 интерфейсу
+```
    router-id 10.0.1.1
+```
 
 конфигурация passive-interface по умолчанию
+```
    passive-interface default
+```
 
 конфигурация passive-interface
+```
    no passive-interface Ethernet1
    no passive-interface Ethernet2
    no passive-interface Ethernet3
    network 0.0.0.0/0 area 0.0.0.0
    bfd default
    max-lsa 12000
+```
 
 конфигурация OSPF на интерфейсах, включаем режим point-to-point
+```
 interface Ethernet1
    ip ospf network point-to-point
 interface Ethernet2
    ip ospf network point-to-point
 interface Ethernet3
    ip ospf network point-to-point
+```
 
 --- Конфигурация Leaf для конечных подключений Overlay (на примере Leaf1)
 
 конфигурация vlan
+```
 vlan 10
+```
 
 конфигурация интерфейса в сторону конечного хоста
+```
 interface Ethernet7
    switchport access vlan 10
+```
 
 конфигурация VXLAN интерфейса c назначением L2VNI
+```
 interface Vxlan1
    vxlan source-interface Loopback0
    vxlan udp-port 4789
    vxlan vlan 10 vni 10010
+```
 
 также настроим MACVRF для vlan 10
+```
 router bgp 65001
    vlan 10
       rd auto
       route-target both 10:10010
       redistribute learned
+```
 
 === Конфигурация Leaf для конечных подключений с локальным L3 GW Overlay (на примере Leaf2)
 
 конфигурация vlan
+```
 vlan 10
+```
 
 конфигурация интерфейса в сторону конечного хоста
+```
 interface Ethernet7
    switchport access vlan 50
-
+```
 конфигурация VRF
+```
 vrf instance TENANT2
+```
 
 конфигурация интерфейса VRF
+```
 interface Vlan50
    vrf TENANT2
    ip address virtual 10.99.50.254/24
+```
 
 конфигурация маршрутизации для VRF
+```
 ip routing vrf TENANT2
+```
 
 конфигурация VXLAN интерфейса c назначением L2VNI, L3VNI
+```
 interface Vxlan1
    vxlan source-interface Loopback0
    vxlan udp-port 4789
    vxlan vlan 50 vni 10050
    vxlan vrf TENANT2 vni 20002
+```
 
 также настроим MACVRF для vlan 50
+```
 router bgp 65002
    vlan 50
       rd auto
       route-target both 50:10050
       redistribute learned
+```
 
 также настроим VRF для TENANT2
+```
 router bgp 65002
    vrf TENANT2
       rd 10.1.0.2:20002
       route-target import evpn 2:20002
       route-target export evpn 2:20002
       redistribute connected
+```
 
 === Конфигурация Leaf для Overlay (на примере Leaf1)
 
@@ -384,6 +421,7 @@ router bgp 65002
 также настроим пересылку community
 также используем Peer Group для упрощения настройки
 
+```
 router bgp 65001
    router-id 10.0.1.1
    timers bgp 3 9
@@ -397,13 +435,21 @@ router bgp 65001
    neighbor 10.0.2.1 peer group PG-SPINE
    neighbor 10.0.2.2 peer group PG-SPINE
    neighbor 10.0.2.3 peer group PG-SPINE
+```
 
 также настроим активацию Peer Group для EVPN AFI:SAFI
+```
    address-family evpn
       neighbor PG-SPINE activate
+```
 
 === Конфигурация Spine для Overlay (на примере Spine1)
 
+конфигурация BGP, настроим router-id, таймеры, максимальное количество путей, BFD
+также настроим eBGP multihop
+также настроим пересылку community
+также используем Peer Group для упрощения настройки
+```
 router bgp 65000
    router-id 10.0.2.1
    timers bgp 3 9
@@ -425,14 +471,18 @@ router bgp 65000
    !
    address-family evpn
       neighbor PG-LEAF activate
+```
 
 === Конфигурация Leaf для настройки ES-LAG (на примере Leaf1)
 
 конфигурация интерфейса для работы в PortChannel
+```
 interface Ethernet8
    channel-group 12 mode active
+```
 
 конфигурация PortChannel для работы в ES-LAG
+```
 interface Port-Channel12
    switchport access vlan 10
    !
@@ -440,28 +490,35 @@ interface Port-Channel12
       identifier 0000:0000:0000:0012:0012
       route-target import 00:00:00:00:12:12
    lacp system-id 0000.0012.0012
+```
 
 === Конфигурация со стороны клиента с одним подключением (на примере Client1)
 
 конфигурация интерфейса для настройки ip.addr и Default Gateway
+```
 ip 192.168.10.1/24 192.168.10.254
+```
 
 === Конфигурация со стороны клиента Multi-Home Client (на примере MHClient1)
 
 конфигурация интерфейсов для работы в PortChannel
+```
 interface Ethernet1
    channel-group 12 mode active
 !
 interface Ethernet2
    channel-group 12 mode active
+```
 
 конфигурация интерфейса для настройки ip.addr
+```
 interface Port-Channel12
    no switchport
    ip address 192.168.10.12/24
 
 конфигурация Default Gateway
 ip route 0.0.0.0/0 192.168.10.254
+```
 
 ## Итоговые конфигурации
 
