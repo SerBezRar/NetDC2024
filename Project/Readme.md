@@ -432,7 +432,124 @@ interface Port-Channel12
 конфигурация Default Gateway
 ip route 0.0.0.0/0 192.168.10.254
 
-=== Итоговые конфигурации
+## Итоговые конфигурации
+
+<details>
+<summary>Шаблон</summary>
+<pre><code>
+
+</code></pre>
+</details>
+
+<details>
+<summary>Конфигурация Leaf1</summary>
+<pre><code>
+! Command: show running-config
+! device: leaf1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf1
+!
+spanning-tree mode mstp
+!
+vlan 10
+!
+vrf instance TENANT1
+!
+interface Port-Channel12
+   switchport access vlan 10
+   !
+   evpn ethernet-segment
+      identifier 0000:0000:0000:0012:0012
+      route-target import 00:00:00:00:12:12
+   lacp system-id 0000.0012.0012
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.1.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.1.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet3
+   no switchport
+   ip address 10.3.1.2/30
+   ip ospf network point-to-point
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+   switchport access vlan 10
+!
+interface Ethernet8
+   channel-group 12 mode active
+!
+interface Loopback0
+   ip address 10.0.0.1/32
+!
+interface Loopback1
+   ip address 10.0.1.1/32
+!
+interface Management1
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+!
+ip routing
+no ip routing vrf TENANT1
+!
+router bgp 65001
+   router-id 10.0.1.1
+   timers bgp 3 9
+   maximum-paths 8
+   neighbor PG-SPINE peer group
+   neighbor PG-SPINE remote-as 65000
+   neighbor PG-SPINE update-source 10.0.1.1
+   neighbor PG-SPINE bfd
+   neighbor PG-SPINE ebgp-multihop
+   neighbor PG-SPINE send-community extended
+   neighbor 10.0.2.1 peer group PG-SPINE
+   neighbor 10.0.2.2 peer group PG-SPINE
+   neighbor 10.0.2.3 peer group PG-SPINE
+   !
+   vlan 10
+      rd auto
+      route-target both 10:10010
+      redistribute learned
+   !
+   address-family evpn
+      neighbor PG-SPINE activate
+!
+router ospf 1
+   router-id 10.0.1.1
+   bfd default
+   passive-interface default
+   no passive-interface Ethernet1
+   no passive-interface Ethernet2
+   no passive-interface Ethernet3
+   network 0.0.0.0/0 area 0.0.0.0
+   max-lsa 12000
+!
+end
+</code></pre>
+</details>
+
 
 === Проверка
 
