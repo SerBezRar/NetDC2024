@@ -281,7 +281,7 @@ System (Clock, NTP и т.д. )
 Mgmt Plane (Log, SNMP и т.д.)
 Data Plane (Interfaces, Vlan, SVI и т.д.)
 
---- Предварительная и общая конфигурация Leaf, Spine (на примере Leaf1)
+=== Предварительная и общая конфигурация Leaf, Spine (на примере Leaf1)
 
 конфигурация имени устройства
 ```
@@ -295,7 +295,7 @@ write
 reload
 ```
 
---- Конфигурация интерфейсов для Leaf (на примере Leaf1)
+=== Конфигурация интерфейсов для Leaf (на примере Leaf1)
 
 конфигурация интерфейсов в сторону Spine, включаем режим L3 порта, настраиваем адресацию
 ```
@@ -321,7 +321,8 @@ interface Loopback1
    ip address 10.1.0.1/32
 ```
 
---- Конфигурация интерфейсов для Spine (на примере Spine1)
+=== Конфигурация интерфейсов для Spine (на примере Spine1)
+
 ```
 interface Ethernet1
    no switchport
@@ -339,7 +340,7 @@ interface Ethernet4
    no switchport
    ip address 10.1.4.1/30
 ```
---- Конфигурация маршрутизации Underlay для Leaf и Spine (на примере Leaf1)
+=== Конфигурация маршрутизации Underlay для Leaf и Spine (на примере Leaf1)
 
 конфигурация общая для работы Underlay маршрутизации
 ```
@@ -381,7 +382,7 @@ interface Ethernet3
    ip ospf network point-to-point
 ```
 
---- Конфигурация Leaf для конечных подключений Overlay (на примере Leaf1)
+=== Конфигурация Leaf для конечных подключений Overlay (на примере Leaf1)
 
 конфигурация vlan
 ```
