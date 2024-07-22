@@ -208,16 +208,19 @@ DC1-Leaf3 Lo0 - 10.0.0.3
 vlan 10 = MACVRF10
 
 --- Логика выбора ethernet-segment будет следующая:
+
 0000:0000:0000:<leaf-pair-number-at-the-end>:<port-channel-number>
 Например
 0000:0000:0000:0012:0012
 
 --- Логика выбора LACP system-id будет следующая:
+
 0000.leaf-pair-number.port-channel-number
 Например
 0000.0012.0012
 
 --- Логика выбора VNI будет следующая:
+
 L2VNI - 1xxxx для vlan xxxx
 Например
 vlan 10 - vni 10010
@@ -227,6 +230,7 @@ L3VNI - 2xxxx для TENANT xxxx
 tenant 1 - vni 20001
 
 --- Логика выбора rd, rt будет следующая:
+
 rd - <source.leaf.ip.addr>:<vni>
 Например
 10.1.0.3:10010
@@ -270,7 +274,7 @@ Data Plane (Interfaces, Vlan, SVI и т.д.)
 hostname leaf1
 ```
 
-конфигурация актуального Route Table Manager
+конфигурация Routing Daemon для поддержки EVPN
 ```
 service routing protocols model multi-agent
 write
